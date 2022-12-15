@@ -1,0 +1,340 @@
+/*****************************************
+Table Of Contents:
+- General Styles
+- Button
+- Back To Top Button
+- Navigation
+- Header Section
+- Content Section Start
+- Footer Section
+- Media Queries
+******************************************/
+
+/**************************/
+/*     General Styles     */
+/**************************/
+
+
+/* @import url('https://fonts.googleapis.com/css2?family=Galada&display=swap'); */
+
+* {
+	font-family: sans-serif;
+	box-sizing: border-box;
+}
+
+body {
+	min-width: 600px;
+	max-width: 90%;
+	margin-left: auto;
+	margin-right: auto;
+
+	/* border-width: 0 10px;
+	border-color: red;
+	border-style: double; */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: "Poppins", sans-serif;
+}
+
+h1 {
+	text-align: center;
+}
+
+/* LOGIN Page Header */
+h2 {
+	text-align: center;
+	margin-bottom: 40px;
+}
+
+a.delete {
+	background: rgb(194, 55, 0);
+	padding: 5px 10px;
+	color: #fff;
+	border-radius: 5px;
+	border: none;
+	text-decoration: none;
+}
+
+a:hover {
+	opacity: .7;
+}
+
+.disabled,
+.disabled:hover {
+	color: black;
+	cursor: default;
+	opacity: 1;
+}
+
+canvas#poset {
+	cursor: pointer;
+	transform: rotate(-90deg);
+}
+
+#IsOff>span {
+	margin-top: 0;
+	padding-top: 0;
+	font-size: small;
+}
+
+.fixed-right {
+	font-size: larger;
+	top: 0%;
+	right: 5%;
+	max-width: 15%;
+}
+
+/* Matrix Formating */
+:root {
+	--morder-font-size: 50px;
+	/* --check-primary: red; */
+}
+
+.border-start-end::before {
+	position: absolute;
+	content: '(';
+	left: -30px;
+	top: -20%;
+	font-size: var(--morder-font-size);
+	/* font-weight: 5%; */
+	color: #00000070;
+}
+
+.border-start-end::after {
+	position: absolute;
+	content: ')';
+	right: -30px;
+	top: -20%;
+	font-size: var(--morder-font-size);
+	/* font-weight: 5%; */
+	color: #00000070;
+}
+
+/* select.form-select > option{
+	height: 250px;
+} */
+
+/******************************/
+/*     Back To Top Button     */
+/******************************/
+#myBtn {
+	position: fixed;
+	width: 52px;
+	height: 52px;
+	right: 20px;
+	bottom: 20px;
+	z-index: 999999999;
+}
+
+#backPage {
+	position: fixed;
+	width: 52px;
+	height: 52px;
+	left: 20px;
+	top: 90px;
+	z-index: 999999999;
+}
+
+#myBtn:hover,
+#backPage:hover {
+	background-color: #00000001;
+	border-radius: 50%;
+}
+
+#myBtn img,
+#backPage img {
+	width: 52px;
+}
+
+
+/**********************/
+/*     Navigation     */
+/**********************/
+.navbar-brand {
+	font-family: 'Galada', cursive;
+}
+
+/* Dropdown Menu */
+.navbar .dropdown .dropdown-menu {
+	animation: fadeDropdown 0.2s;
+	/* required for the fade animation */
+}
+
+@-webkit-keyframes fadeDropdown {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes fadeDropdown {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+/**
+*   #############################################################
+*   Header Section Start
+*   #############################################################
+**/
+
+#search-section {
+	width: 100%;
+}
+
+
+.output {
+	text-align: center;
+	border-radius: 0 0 15px 15px;
+	width: 90%;
+	border: 0px solid #ccc;
+	padding: 30px;
+	background: #fff;
+}
+
+input,
+textarea {
+	display: block;
+	border: 2px solid #ccc;
+	width: 95%;
+	padding: 10px;
+	margin: 10px auto;
+	border-radius: 5px;
+}
+
+label {
+	font-size: 16px;
+	padding: 10px;
+}
+
+/**
+*   #############################################################
+*   Content Section Start
+*   #############################################################
+**/
+.content-wrapper {
+	width: 90%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#searchedTable,
+#Height-searchedTable {
+	width: 100%;
+}
+
+#searchedTable td a,
+#searchedTable {
+	color: rgb(0, 5, 60);
+	text-decoration: none;
+}
+
+#searchedTable td,
+#searchedTable th {
+	text-align: center;
+}
+
+.updateTable tr:nth-child(2) td,
+.dataTable tr td {
+	border-bottom: 1px solid green;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.dataTable {
+	width: 90%;
+	border: 2px solid #ccc;
+	padding: 30px;
+	border-radius: 15px 15px 0 0;
+}
+
+#LogIn .error {
+	color: #A94442;
+	background: #F2DEDE;
+	border-radius: 5px;
+	text-align: left;
+	padding: 5px;
+}
+
+#LogIn button {
+	margin-top: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.error {
+	text-align: center;
+	background: #F2DEDE;
+	padding: 10px;
+	width: 95%;
+	border-radius: 5px;
+	margin: 20px auto;
+	color: #A94442;
+	line-height: 250%;
+}
+
+.success-null {
+	text-align: center;
+	background: #F2DEDE;
+	padding: 10px;
+	width: 95%;
+	border-radius: 5px;
+	margin: 20px auto;
+	color: #1100ff;
+}
+
+/**
+*   #############################################################
+*   Footer Section Start
+*   #############################################################
+**/
+.copyright {
+	display: block;
+	position: relative;
+	bottom: 0;
+	text-align: center;
+	margin-top: 30px;
+}
+
+/**
+*   #############################################################
+*   Media Queries From small to large devices 
+*   #############################################################
+**/
+@media screen and (max-width: 575px) {
+	/* Styles for EXTRA SMALL [Android Portrait] devices */
+}
+
+@media screen and (min-width: 576px) {
+	/* Styles for SMALL [Android Landscape] devices */
+}
+
+@media screen and (min-width: 768px) {
+	/* Styles for MEDIUM [Tab Portrait] devices */
+}
+
+@media screen and (min-width: 992px) {
+	/* Styles for LARGE [Tab Landscape] devices */
+}
+
+@media screen and (min-width: 1200px) {
+	/* Styles for EXTRA LARGE [Small Desktop/Laptop] devices */
+}
+
+@media screen and (min-width: 1400px) {
+	/* Styles for EXTRA EXTRA LARGE [Large Desktop Screen] devices */
+}

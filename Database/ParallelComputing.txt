@@ -1,0 +1,19 @@
+Speedup Serial MATLAB Code:
+1. Use The Latest version.
+2. Use Built-in functions and data-types. [Default multitheaded functions are: fft [first fourier transform], eig, svd and sort]
+3. Use Efficient Programming Practices.
+	Use Functions instead of scripts.
+	pre-allocate memory [like array]
+	Use new variable instead of existing variable. 
+	Use matrix and vector instead of loops.
+	Avoid printing too much data on the screen, reuse existing graphics handles.
+	Avoid programmatic use of cd, addpath and rmpath.
+4. Load common variables from a file instead of executing code to generate them repeatedly.
+5. Generate 'mex' C/C++ or CUDA code from a function
+	
+
+Speedup With the Parallel Computing Toolbox.
+
+Scaling up to a Cluster/AWS using MATLAB Parallel Server.
+
+tic = Time In Clock, toc = Time Out Clock.
