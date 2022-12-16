@@ -1210,7 +1210,6 @@
              * & If Enter pressed then connect the selection with previous selected element
              */
 
-
             /* PStart,PEnd = -1 in initial */
             /**
              * If PStart Not set then set it OR
