@@ -7,13 +7,10 @@
     /* Set 5 as Initial Value on page load (index.php) */
     /**
      * 
-     * @@@@@@@@@@@@@@@@@ DRAWING TOOL @@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@ DRAWING TOOL [By Mouse] @@@@@@@@@@@@@@@@@@
      * 
      */
-
-     
     // gridsInit();
-
     // function gridsInit() {
     /* Set The Name as Coordinate value of the grids */
     for (let i = 0; i < morder; i++) {
@@ -29,365 +26,910 @@
     }
     // }
 
-    function gridsDraw() {
-        for (let i = 0; i < morder; i++) {
-            for (let j = 0; j < morder; j++) {
-                poset.beginPath(),
-                    poset.arc(
-                        XYPoints[i][j][0] * x,
-                        XYPoints[i][j][1] * x,
-                        radius,
-                        0,
-                        2 * Math.PI
-                    ),
-                    poset.stroke();
-            }
-        }
-        // Initialising The Coords by small circles with radius = "$radius"
-    }
-    /* Initialise the canvas frame with the grids */
-    PosetInitial();
-
-    function PosetInitial() {
-        /* Canvas Border Outside the Gride system */
-        poset.beginPath(); // Important
-
-        /* Define The Canvas Area */
-        poset.rect(x - 12, x - 12, width - x * 1.5, height - x * 1.5);
-        poset.stroke();
-
-
-        /* Side Headings & Titles */
-        poset.save(); // Save all previously desinged to change design only for next poset
-        (poset.textAlign = "center"),
-        (poset.font = "12px 'Arial'"),
-        poset.rotate((90 * Math.PI) / 180); // To rotate frame top-left (0, 0) to bottom-left (0, 0)
-        (max = "Maximal Elements"), poset.fillText(max, width / 2, -3);
-        /* (-ve) Height means upward */
-        (max = "Minimal Elements"), poset.fillText(max, width / 2, -height + 25);
-        for (let i = 0; i < morder; i++) {
-            // Coordinates Labeling
-            (H_no = i), poset.fillText("H:" + H_no, 17, -(x * (H_no + 1) - 6));
-            (W_no = i), poset.fillText("W:" + W_no, x * (W_no + 1), -20);
-        }
-        poset.restore(); // restore The saved design
-        console.log("Frame ReDrawn.");
-    } /* Poset Initial */
-
-    /* ============================================================ */
-    /* reDraw canvas with all drawn elements & their covers */
-    /* ============================================================ */
-    // console.table(selectedElements);
-    reDraw();
-
-    function reDraw() {
-        /* Clear The Canvas */
-        poset.clearRect(0, 0, width, height);
-        console.log(
-            "=====================\nThe canvas Cleared.\n====================="
-        );
-
-        /* Re-Draw The Canvas Initially */
-        PosetInitial();
-
-        <?php
-        if (!isset($_GET["matrix"]) || !isset($_GET["SEs"])) {
-        ?>
-            console.log("Draw The Grids");
-            gridsDraw()
-        <?php
+    /* ============================================================  */
+    /* ############################# GET THE MOUSE DOWN POSITION ################ */
+    /* ============================================================  */
+    function getMousePosition(canvas, event) {
+        // let rect = canvas.getBoundingClientRect(); // Boundary Coords of canvas
+        // no click = 0, right click = 2
+        if (event.keyCode !== undefined && event.key !== undefined) {
+            var mouseClick = event.keyCode || event.key || event.button;
         } else {
-        ?>
-            console.clear;
-            console.log("Grids Not Drawn.");
-        <?php
+            var mouseClick = event.button;
         }
-        ?>
-        // console.log("The grid circles Restored by PosetInitial()."),
-        //   console.log("ReDrawing...", "\nThe selected Elements to be reDrawn.");
+        // console.log(mouseClick);
+        // console.log(event.key);
+        if (mouseClick === 1) {
+            // left click only
+            let x = event.offsetX;
+            let y = event.offsetY;
+            return [x, y];
+        } else if (mouseClick === 0) {
+            /* For Hover / No Click*/
+            let x = event.offsetX;
+            let y = event.offsetY;
+            return [x, y];
+        } else {
+            // console.log("Not-Clicked.");
+            return [0, 0];
+        }
 
-        if (
-            selectedElements != undefined &&
-            selectedElements != null &&
-            selectedElements.length
-        ) {
-            /* Re-Draw The Selected Elements & Relations */
-            console.table(selectedElements[0][0]);
-            for (let i = 0; i < SELength; i++) {
-                /* Fill The Points */
-                poset.beginPath(),
-                    poset.arc(
-                        selectedElements[i][0] * x,
-                        selectedElements[i][1] * x,
-                        radius,
-                        0,
-                        2 * Math.PI
-                    ),
-                    poset.fill();
-                // console.log("The point ", i, " is restored.");
+    } /* Mouse Position for an event */
+    if (typeof(poset) !== undefined) {
 
-                /* Re-Draw The Covers of i if Exist */
-                if (
-                    selectedElements[i][2] != undefined &&
-                    selectedElements[i][2] != null &&
-                    selectedElements[i][2].length
-                ) {
-                    // console.log("=================\nThe Covers of", i, "are "),
-                    //   console.table(selectedElements[i][2]);
-                    /* If Any Relation Found To 'i' get Length of the Relation List */
-                    var jL = selectedElements[i][2].length; // Use var to avoid undefined error of jL outside the block
+        /* For Hover Effect */
+        function LeastDistanceShow(xCurrent, yCurrent) {
+            let Start = -1,
+                End = -1;
+            let X1, Y1, X2, Y2;
+            let minDistance = Number.MAX_SAFE_INTEGER,
+                DistanceFromPointToLine = Number.MAX_SAFE_INTEGER,
+                DistanceFromXY1ToXY2 = Number.MAX_SAFE_INTEGER;
+            /* X Coordinate of Clicked Position */
+            let xCCo = Math.floor(xCurrent / 50);
 
-                    for (let j = 0; j < jL; j++) {
-                        poset.beginPath(),
-                            poset.moveTo(
-                                selectedElements[i][0] * x,
-                                selectedElements[i][1] * x
-                            );
-                        poset.lineTo(
-                            selectedElements[selectedElements[i][2][j]][0] * x,
-                            selectedElements[selectedElements[i][2][j]][1] * x
-                        );
-                        // console.log(i, "is covered by ", selectedElements[i][2][j]);
-                        poset.stroke();
-                        // console.log("The Relation is restored.");
-                    } /* Covers of i Re-Drawn */
-                } else {
-                    // console.log("No Cover is Found For ", i);
+            /* selected Elements below xCurrent */
+            let count = 0;
+            selectedElements.forEach((element) => {
+                if (element[0] <= xCCo) {
+                    count++;
                 }
-            } // Re-stored All
-            console.log(
-                "=====================\nRestored Everything.\n====================="
-            );
-        } else {
-            console.log(
-                "=====================\n=====================\nNothing To Resotred. All Elements With Their Relations/Covers Removed."
-            );
-        }
-    } // reDraw()
+            });
 
-    /* ============================================================ */
-    /* Find Indices of Least Distanced (< radius) of two Nearest (minDistance) Points from "selectedElements" matrix */
-    /* ============================================================ */
-    function LeastDistance(xCurrent, yCurrent) {
-        let Start = -1,
-            End = -1;
-        let X1, Y1, X2, Y2;
-        let minDistance = Number.MAX_SAFE_INTEGER,
-            DistanceFromPointToLine = Number.MAX_SAFE_INTEGER,
-            DistanceFromXY1ToXY2 = Number.MAX_SAFE_INTEGER;
-        /* X Coordinate of Clicked Position */
-        let xCCo = Math.floor(xCurrent / 50);
-        let count = 0; // selected Elements below xCurrent
-        selectedElements.forEach((element) => {
-            if (element[0] <= xCCo) {
-                count++;
-            }
-        });
-        /* Get Two Points To Relate */
-        for (let i = count - 1; i >= 0; i--) {
-            /* Set X1, Y1 as 1st point down xCurrent */
-            X1 = selectedElements[i][0] * x;
-            Y1 = selectedElements[i][1] * x;
+            /* Get Two Points From SelectedElements To Relate */
+            for (let i = count - 1; i >= 0; i--) {
+                /* Set X1, Y1 as 1st point down xCurrent */
+                X1 = selectedElements[i][0] * x;
+                Y1 = selectedElements[i][1] * x;
 
-            /* Find Suitable X2, Y2 for 2nd point in up xCurrent */
-            for (let j = count; j < SELength; j++) {
-                if (selectedElements[j][0] * x > X1) {
+                /* Find Suitable X2, Y2 for 2nd point in up-xCurrent */
+                for (let j = count; j < SELength; j++) {
+                    if (selectedElements[j][0] * x > X1) {
 
-                    /* take End point */
-                    X2 = selectedElements[j][0] * x;
-                    Y2 = selectedElements[j][1] * x;
+                        /* take End point */
+                        X2 = selectedElements[j][0] * x;
+                        Y2 = selectedElements[j][1] * x;
 
-                    /* Disntance From Start to End */
-                    DistanceFromXY1ToXY2 = Math.sqrt(
-                        Math.pow(X1 - X2, 2) + Math.pow(Y1 - Y2, 2)
-                    );
+                        /* Disntance From Start to End */
+                        DistanceFromXY1ToXY2 = Math.sqrt(
+                            Math.pow(X1 - X2, 2) + Math.pow(Y1 - Y2, 2)
+                        );
 
-                    /* Distance From Hovered Point To Start-End Line */
-                    DistanceFromPointToLine =
-                        Math.abs(
-                            (Y2 - Y1) * xCurrent -
-                            (X2 - X1) * yCurrent +
-                            (Y1 * (X2 - X1) - X1 * (Y2 - Y1))
-                        ) / DistanceFromXY1ToXY2;
+                        /* Distance From Hovered Point To Start-End Line */
+                        DistanceFromPointToLine =
+                            Math.abs(
+                                (Y2 - Y1) * xCurrent -
+                                (X2 - X1) * yCurrent +
+                                (Y1 * (X2 - X1) - X1 * (Y2 - Y1))
+                            ) / DistanceFromXY1ToXY2;
 
-                    /* connect points with min distanced & must be less than "radius" distance */
-                    if (
-                        DistanceFromXY1ToXY2 < minDistance &&
-                        DistanceFromPointToLine <= radius
-                    ) {
-                        /* =========================================== */
-                        /* Check! is Trivial Case [Cover of Sub-cover is also a cover] */
-                        /* =========================================== */
-
-                        /* var isCovered = false => i & j is connectable */
-                        var isCovered = (IsConnectable(i, j) === true) ? true : false;
-                        // console.log("Check! Can We Relate?", i, j, !isCovered); // If Covered We can't Relate.
-
-                        /* @@@@@@@@@@@@@@@@@@@@@@@ */
-                        /* Making Relation */
-                        if (isCovered) {
-                            document.getElementById("ShowErrors").innerHTML = "Can't Relate Them.";
-                            // document.getElementById("ShowErrors").innerHTML = "Transitivity is trivial. Trivial cases are ignored for drawing simplicity.";
-                            // document.getElementById("ShowErrors").hidden = false;
-                        } else {
-                            /* Save Smallest Path & Update In Every Possible Path */
-                            // console.log("Start & End Updated. Since (minDistance =)", minDistance, ">", DistanceFromXY1ToXY2, "(DistanceFromXY1ToXY2)");
-                            minDistance = DistanceFromXY1ToXY2;
-
-                            /* Update the points To Draw */
-                            poset.beginPath(); /* Use beginPath() to prevent connection from previous path */
-                            poset.moveTo(X1, Y1);
-                            poset.lineTo(X2, Y2);
-
-                            /* Save The Indices of X1, Y1 and X2, Y2 to return to finally drawn */
-                            (Start = i), (End = j);
-                            // console.log("Start =", Start, " End = ", End);
-                            // console.table(selectedElements);
-                            // console.table(selectedElements[0][2]);
-                        } // The Relation is Trivial
-                        /* Making Relation END */
-                        /* @@@@@@@@@@@@@@@@@@@@@@@ */
-
-                    } // Click near the connection line or on nearest points // check is minDistanced
-                } // Relate only in upword direction
-            } // For loop of j -> SELength Closed
-        } // For loop of i -> 0 Closed
-        return [Start, End];
-    } // LeastDistance()
-
-    /* For Hover Effect */
-    function LeastDistanceShow(xCurrent, yCurrent) {
-        let Start = -1,
-            End = -1;
-        let X1, Y1, X2, Y2;
-        let minDistance = Number.MAX_SAFE_INTEGER,
-            DistanceFromPointToLine = Number.MAX_SAFE_INTEGER,
-            DistanceFromXY1ToXY2 = Number.MAX_SAFE_INTEGER;
-        /* X Coordinate of Clicked Position */
-        let xCCo = Math.floor(xCurrent / 50);
-
-        /* selected Elements below xCurrent */
-        let count = 0;
-        selectedElements.forEach((element) => {
-            if (element[0] <= xCCo) {
-                count++;
-            }
-        });
-
-        /* Get Two Points From SelectedElements To Relate */
-        for (let i = count - 1; i >= 0; i--) {
-            /* Set X1, Y1 as 1st point down xCurrent */
-            X1 = selectedElements[i][0] * x;
-            Y1 = selectedElements[i][1] * x;
-
-            /* Find Suitable X2, Y2 for 2nd point in up-xCurrent */
-            for (let j = count; j < SELength; j++) {
-                if (selectedElements[j][0] * x > X1) {
-
-                    /* take End point */
-                    X2 = selectedElements[j][0] * x;
-                    Y2 = selectedElements[j][1] * x;
-
-                    /* Disntance From Start to End */
-                    DistanceFromXY1ToXY2 = Math.sqrt(
-                        Math.pow(X1 - X2, 2) + Math.pow(Y1 - Y2, 2)
-                    );
-
-                    /* Distance From Hovered Point To Start-End Line */
-                    DistanceFromPointToLine =
-                        Math.abs(
-                            (Y2 - Y1) * xCurrent -
-                            (X2 - X1) * yCurrent +
-                            (Y1 * (X2 - X1) - X1 * (Y2 - Y1))
-                        ) / DistanceFromXY1ToXY2;
-
-                    /* Find The line of Nearest Two Elements (Least Distanced) in "radius" distance */
-                    if (
-                        DistanceFromXY1ToXY2 < minDistance &&
-                        DistanceFromPointToLine <= radius
-                    ) {
-                        /* =========================================== */
-                        /* Check! is Trivial Case [Cover of Sub-cover is also a cover] */
-                        /* =========================================== */
-
-                        var isCovered = (IsConnectable(i, j) === true) ? true : false;
-                        // console.log("Check! Can We Relate?", i, j, !isCovered);
-
-                        /* @@@@@@@@@@@@@@@@@@@@@@@ */
-                        /* Hover Effect */
-                        // isHovered = true;
-                        /* Start & End Directly Related Now? if Yes => No Hover Effect. */
+                        /* Find The line of Nearest Two Elements (Least Distanced) in "radius" distance */
                         if (
-                            selectedElements[i][2] != undefined &&
-                            selectedElements[i][2] != null &&
-                            selectedElements[i][2].length
+                            DistanceFromXY1ToXY2 < minDistance &&
+                            DistanceFromPointToLine <= radius
                         ) {
-                            var foundEnd = selectedElements[i][2].findIndex(function(element) {
-                                return element == j;
-                            });
-                        } else {
-                            foundEnd = -1;
+                            /* =========================================== */
+                            /* Check! is Trivial Case [Cover of Sub-cover is also a cover] */
+                            /* =========================================== */
+
+                            var isCovered = (IsConnectable(i, j) === true) ? true : false;
+                            // console.log("Check! Can We Relate?", i, j, !isCovered);
+
+                            /* @@@@@@@@@@@@@@@@@@@@@@@ */
+                            /* Hover Effect */
+                            // isHovered = true;
+                            /* Start & End Directly Related Now? if Yes => No Hover Effect. */
+                            if (
+                                selectedElements[i][2] != undefined &&
+                                selectedElements[i][2] != null &&
+                                selectedElements[i][2].length
+                            ) {
+                                var foundEnd = selectedElements[i][2].findIndex(function(element) {
+                                    return element == j;
+                                });
+                            } else {
+                                foundEnd = -1;
+                            }
+
+                            if (isCovered || foundEnd !== -1) {
+                                /* Update Distance but not Start & End. Becouse they directly connected or transitively Covered. */
+                                minDistance = DistanceFromXY1ToXY2;
+                                // document.getElementById("ShowErrors").hidden;
+                            } else {
+                                /* Save Smallest Path & Update In Every Possible Path */
+                                minDistance = DistanceFromXY1ToXY2;
+
+                                /* Save The Indices of X1, Y1 and X2, Y2 to return to finally drawn */
+                                (Start = i), (End = j);
+                            } // The Relation is Trivial
+                            /* Hover Effect END */
+                            /* @@@@@@@@@@@@@@@@@@@@@@@ */
+
+                        } // Click near the connection line or on nearest points // check is minDistanced
+                    } // Relate only in upword direction
+                } // For loop of j -> SELength Closed
+            } // For loop of i -> 0 Closed
+            return [Start, End];
+        } // LeastDistance()
+
+
+        /* ============================================================  */
+        /* ############################# Draw Solid Line If Click In Possible Connection ############################# */
+        /* ============================================================  */
+        function DrawPoset(xCurrent, yCurrent) {
+            let K = 0;
+            /* Find The Distance From The Mesh Points To The Clicked Point */
+            [xCoord, yCoord, K] = findDistFromGrids(xCurrent, yCurrent);
+            /* FILL IF NOT CHECKED UNFILLED IF CHECKED */
+            if (typeof(poset) === undefined) {
+                console.log("Error! poset not defined.");
+                return;
+            }
+            if (DistanceFromGrids[K] <= radius + 1) {
+                // console.log("In DrawPoset() ", xCoord, yCoord);
+                /* Fill The Element As Selected Nodes */
+                fillOrUnFill(xCoord, yCoord);
+            } else if (SELength > 1) {
+
+                /* Connect Two Points If minimum TWO Elements Selected. */
+                let [Start, End] = LeastDistance(xCurrent, yCurrent);
+
+                /* If Found Any Nearest Selected Points To Connect */
+                if (Start != -1) {
+                    // console.log("Connect The Points: ", Start, End);
+                    let connected = -1; // Let They are not connected.
+                    /* Define array's new dimention for connectedness if not defined */
+                    connectLine(Start, End);
+                }
+            } else {
+                document.getElementById("ShowErrors").hidden = false;
+                document.getElementById("ShowErrors").innerHTML =
+                    "Please Select At Least Two Points Before To Connect.";
+            }
+            /* Show the selectedElements with relations */
+            // let TL = selectedElements.length;
+            // if (selectedElements.length) {
+            //   console.table(selectedElements);
+            //   for (let i = 0; i < TL; i++) {
+            //     if (
+            //       selectedElements[i][2] != undefined &&
+            //       selectedElements[i][2] != null &&
+            //       selectedElements[i][2].length
+            //     ) {
+            //       let TLL = selectedElements[i][2].length;
+            //       // for(let j = 0; j<TLL; j++){
+            //   console.log("Cover of ", i);
+            //       console.table(selectedElements[i][2]);
+            //       // }
+            //     }
+            //   }
+            // }
+        }
+
+        /* ============================================================  */
+        /* Transitional Cover Matrix Formation  */
+        /* ============================================================  */
+        function transitionalCoverMatrix() {
+            SELength = selectedElements.length;
+            console.log("Create Transitional Cover Matrix with length is: ", SELength);
+            if (SELength) {
+                let CoverMatrixLength = (Math.pow(SELength, 2) - SELength) / 2; // Length of the posetMatrix [Upper Triangular]
+                // console.log(CoverMatrixLength);
+
+                /* Transitional Cover Matrix */
+                const posetTCM = new Array(CoverMatrixLength).fill(0); // Initialize as 0
+                // let SEsC = selectedElements; // Two var useing same location & same value
+                // let SEsC = [];
+                /* to seperate vars location */
+                var SEsC = JSON.parse(JSON.stringify(selectedElements));
+
+                // console.log("selected Elements: "),
+                //     console.table(selectedElements);
+
+                // console.table(SEsC);
+
+                /* Transit Cover Matrix */
+                for (let j = morder - 3; j >= 0; j--) {
+                    /* If The (j) element has no relation, Needn't check further */
+                    // var PTCM = SEsC[j][2].length;
+                    if (
+                        SEsC[j][2] != undefined &&
+                        SEsC[j][2] != null &&
+                        SEsC[j][2].length
+                    ) {
+
+                        // console.log(SEsC),
+                        //     console.log('j = ', j);
+                        for (let k = j + 1; k < morder - 1; k++) {
+
+                            /* Is j -> k ? */
+                            let idxj = SEsC[j][2].findIndex(function(a) {
+                                // console.log("j = ", j, "\n"),
+                                // console.table(a, "?=", j + 1);
+                                return a === k;
+                            })
+
+                            /* If j related to k then */
+                            if (idxj !== -1) {
+                                // console.log('k = ', k),
+                                //     console.log(j, '->', k, " Found in idx = ", idxj);
+
+                                /* If Next element (k) has no relation, Needn't check further */
+                                if (
+                                    SEsC[k][2] != undefined &&
+                                    SEsC[k][2] != null &&
+                                    SEsC[k][2].length
+                                ) {
+                                    for (let l = k + 1; l < morder; l++) {
+
+                                        /* Is k -> l ? */
+                                        let idxk = SEsC[k][2].findIndex(function(b) {
+                                            // console.log("j+1 = ", j + 1, "\n");
+                                            // console.table(b, "?=", k + 1);
+                                            return b === l;
+                                        })
+
+                                        /* If k -> l then */
+                                        if (idxk !== -1) {
+                                            // console.log('l = ', l),
+                                            // console.log(k, '->', l, " Found in idx = ", idxk);
+                                            // console.log(j, " Update -> ", l);
+
+                                            /* Append to The Relations */
+                                            // PTCM = SEsC[j][2].length;
+                                            console.log("Selected Element Matrix before:");
+                                            console.table(selectedElements);
+
+                                            SEsC[j][2][SEsC[j][2].length] = l;
+
+                                            console.log("Copy of Selected Element Matrix:"), console.table(SEsC);
+
+                                            console.log("But Selected Element Matrix remain Unchanged:"),
+                                                console.table(selectedElements);
+                                            // SEsC = 0;
+                                            // return;
+                                        }
+                                    }
+
+                                    // console.log("Is =? ", SEsC[j][2].length, morder - j - 1);
+                                    // PTCM = SEsC[j][2].length;
+                                    /* If Already All Updated Then 'break' */
+                                    if (SEsC[j][2].length == morder - j - 1) {
+                                        // console.log(j, " is connected to "),
+                                        // console.table(SEsC[j][2]);
+                                        break;
+                                    }
+
+                                }
+                            }
+                        }
+                    } /* SEsC's j'th element has no cover matrix */
+                } /* END FOR loop :=> Transit Cover Matrix */
+
+                /* Find The Cover Matrix */
+                let relations = [];
+                for (let i = 0; i < SELength; i++) {
+                    if (
+                        SEsC[i][2] != undefined &&
+                        SEsC[i][2] != null &&
+                        SEsC[i][2].length
+                    ) {
+                        let RL = SEsC[i][2].length;
+                        for (let k = 0; k < RL; k++) {
+                            let cover = SEsC[i][2][k];
+                            let idx = SELength * i + cover - ((i + 1) * (i + 2)) / 2; // Find the idx from relational values.
+                            posetTCM[idx] = 1; // If related assign 1
                         }
 
-                        if (isCovered || foundEnd !== -1) {
-                            /* Update Distance but not Start & End. Becouse they directly connected or transitively Covered. */
-                            minDistance = DistanceFromXY1ToXY2;
-                            // document.getElementById("ShowErrors").hidden;
-                        } else {
-                            /* Save Smallest Path & Update In Every Possible Path */
-                            minDistance = DistanceFromXY1ToXY2;
+                        /* Save The Number of Covers Elements */
+                        relations[i] = selectedElements[i][2].length;
+                        console.log("selected Element for ", i, "th value is: ");
+                        console.table(selectedElements[i][2]);
+                        console.log("So no. of relation: ", relations[i]);
 
-                            /* Save The Indices of X1, Y1 and X2, Y2 to return to finally drawn */
-                            (Start = i), (End = j);
-                        } // The Relation is Trivial
-                        /* Hover Effect END */
-                        /* @@@@@@@@@@@@@@@@@@@@@@@ */
+                    } else {
+                        relations[i] = 0;
+                        console.log("selected Element for ", i, "th value is: ");
+                        console.table(selectedElements[i][2]);
+                        console.log("So no. of relation: ", relations[i]);
+                    }
+                }
 
-                    } // Click near the connection line or on nearest points // check is minDistanced
-                } // Relate only in upword direction
-            } // For loop of j -> SELength Closed
-        } // For loop of i -> 0 Closed
-        return [Start, End];
-    } // LeastDistance()
 
-    function ShowConnection(xCurrent, yCurrent) {
-        /* Is Connectable In Hover */
-        let [Start, End] = LeastDistanceShow(xCurrent, yCurrent);
-        /* If Possible Elements Found To Relate */
-        if (Start > -1 && End > -1) {
-            // document.getElementById("Coords").innerHTML =
-            //     "The Nearest Points are: [" + Start + " ," + End + "]";
-            // console.log("The Nearest Points are: [", Start, " ,", End, "]");
+                // return [posetTCM, selectedElements];
+                // document.getElementById("outputMatrix").innerHTML = "<?php // $_SESSION['SEs'] = '" + selectedElements + "';
+                                                                        // $_SESSION['SEs_rels'] = '" + relations + "'; 
+                                                                        ?>";
+                console.log("Relations: ");
+                console.table(relations);
+                console.log("Session OutPut: ");
+                // console.table(document.getElementById("outputMatrix").innerHTML);
+                // console.log("<?php // print_r($_SESSION["SEs"]); 
+                                ?>");
 
-            /* If New Pair of Elements Found */
-            if (PStart != Start || PEnd != End) {
-                // console.log(PStart, "!=", Start, "&", PEnd, "!=", End);
-                Draw = 1;
-                /* Remove previous Dashed Lines */
-                reDraw();
-                /* Draw The New Dashed Line */
-                poset.save();
-                poset.beginPath(); /* Use beginPath() to prevent connection from previous path */
-                poset.moveTo(
-                    selectedElements[Start][0] * x,
-                    selectedElements[Start][1] * x
-                );
-                poset.lineTo(selectedElements[End][0] * x, selectedElements[End][1] * x);
-                poset.setLineDash([3, 3]);
-                poset.stroke();
-                poset.restore();
-            } else {
-                /* If Same Points Found Do Nothing i.e no draw or no reDraw() */
+                // console.log("selected Elements: ");
+
+
+                /* To draw in index.php page */
+                console.log("Transitional Cover Matrix Created as:");
+                console.table(posetTCM);
+                return posetTCM;
+            } /* IF END */
+            // else {
+            // console.log("Please Select Atleast One Elements.");
+            //     // return 0;
+            // }
+        } /* createRelationalTable() END */
+
+        /* Delete All Elements And There Relations & Update 'XYPoints' Matrix */
+        function resetCanvas() {
+            document.getElementById("ShowErrors").hidden = true;
+            // console.log("@@@@@@@@@@@@@@@@@\nClearing The Canvas...\n@@@@@@@@@@@@@@");
+
+            while (L = selectedElements.length) { // selectedElements.length dicrease to 0 as deletion
+                // console.log("SEs Length in resetCanvas(): ", L);
+                // console.log("Deleted Element is: ", selectedElements[0][0] * x, selectedElements[0][1] * x);
+
+                /* All Selected Elements Sorted The Re arrange From 0 index */
+                DrawPoset(selectedElements[0][0] * x, selectedElements[0][1] * x);
             }
-        } else if (Draw == 1) {
-            /* If Dashed line Already Drawn & Next Mouse move Detect Nothing i.e. Start & End = -1 */
-            Draw = 0;
-            reDraw();
-        } // if (Start != -1 && End != -1) END
-        /* Save The Previous Mouse Position */
-        // console.log("Previous Mouse Position is Saved in ", Start, End);
-        (PStart = Start), (PEnd = End);
-    } // ShowConnection(xCurrent, yCurrent) END
+        } /* resetCanvas() END */
+
+
+        /**
+         * @@@@@@@@@@@@@@@@@
+         *  DRAWING TOOL [By Keyboard] 
+         * @@@@@@@@@@@@@@@@@@ 
+         */
+
+
+        /* Keyboard Features for Drawing Tool */
+        function DrawingByKeyboard() {
+            // console.log("Modal Showing.");
+            var PreventFill = true; /* To prevent filled the element on keyboard 'Enter' in "Drawing Tool" button */
+            Tab = false;
+            document.getElementById("IsKeyboard").innerHTML = "Keyboard Feature is <span class='text-info'>On</span>. [Use mouse for more flexibility & guidlines]<br> <span class='text-dark'> <kbd>Enter</kbd> to select &amp; <kbd>Shift</kbd> + <kbd>Enter</kbd> to relate</span>";
+
+            /* Keyboard Event */
+            document.onkeyup = function(e) {
+                /* for keyborad, e.which is deprecated */
+                /* Is Shift key pressed */
+                let Shift = e.shiftKey;
+                // Alt = e.altKey;
+                // Ctrl = e.ctrlKey;
+
+                // console.log("key:", e.key);
+                switch (e.key) {
+                    case "ArrowLeft":
+                        /* move selection left by 1 */
+                        if (keyPosX !== 0) {
+                            keyPosX--;
+                        }
+
+                        // console.log("Left Key Pressed Here. keyPosX=", keyPosX);
+                        break;
+                    case "ArrowUp":
+                        /* move selection up by 1 */
+                        if (keyPosY !== morder - 1) {
+                            keyPosY++;
+                        }
+
+                        // console.log("Up Key Pressed. keyPosY=", keyPosY);
+                        break;
+                    case "ArrowRight":
+                        /* move selection Right by 1 */
+                        if (keyPosX !== morder - 1) {
+                            keyPosX++;
+                        }
+
+                        // console.log("Right Key Pressed. keyPosX=", keyPosX);
+                        break;
+                    case "ArrowDown":
+                        /* move selection Down by 1 */
+                        if (keyPosY !== 0) {
+                            keyPosY--;
+                        }
+
+                        // console.log("Down Key Pressed. keyPosY=", keyPosY);
+                        break;
+                    case "Enter":
+                        /* If Shift+Enter pressed then select to relate the elements */
+                        if (Shift) {
+                            /* If not filled then filled first then select to relate */
+                            if (!XYPoints[keyPosY][keyPosX][2]) {
+                                DrawPoset(XYPoints[keyPosY][keyPosX][0] * x, XYPoints[keyPosY][keyPosX][1] * x);
+                            }
+
+                            /* Select The Current Element From Grids */
+                            function Select(element) {
+                                // console.log("element: ", element, " ?= ", XYPoints[keyPosY][keyPosX]);
+                                return element[0] === XYPoints[keyPosY][keyPosX][0] &&
+                                    element[1] === XYPoints[keyPosY][keyPosX][1]
+                            }
+
+                            if (PStart === -1 || PEnd !== -1) {
+                                /* PStart was unset (For First Time) Or PEnd was Set (For Next Time, To Reset PStart) */
+                                let StartTmp = selectedElements.findIndex(Select);
+                                // console.log(StartTmp);
+                                if (StartTmp !== -1) {
+                                    console.log("Start = ", StartTmp, " is set.");
+                                    PStart = StartTmp;
+                                }
+                            } else {
+
+                                /* PStart is set && PEnd is unset */
+                                let StartTmp = selectedElements.findIndex(Select);
+                                if (StartTmp !== -1 && StartTmp !== PStart) {
+                                    console.log("End = ", StartTmp, " is set.");
+                                    PEnd = StartTmp;
+
+                                    /* Connect The Start & End Elements */
+                                    connectLine((PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd);
+                                    console.log("The Elements ", (PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd, " is Connected Or Dis-connected.");
+                                    PStart = -1;
+                                    PEnd = -1;
+                                }
+                            }
+                        }
+
+                        /* If 'Tab' press before 'Enter' Or modal show button is clicked by 'Enter' Or Shift key pressed with filled element then Do Nothing on 'Enter' */
+                        if (PreventFill || (Tab || (Shift && XYPoints[keyPosY][keyPosX][2]))) {
+                            /* Change The value After First 'Enter' Key press */
+                            PreventFill = false;
+                            // break;
+                        } else {
+                            /* Else Fill The Selection */
+                            DrawPoset(XYPoints[keyPosY][keyPosX][0] * x, XYPoints[keyPosY][keyPosX][1] * x);
+                            // console.log(XYPoints[keyPosY][keyPosX][0], XYPoints[keyPosY][keyPosX][1], " (XYPoints) Filled is ", XYPoints[keyPosY][keyPosX][2]);
+                        }
+
+
+                        break;
+                    case "Tab":
+                        // console.log("Tab pressed.");
+                        // console.log("Tab -> True");
+                        Tab = true;
+                        reDraw();
+                        break;
+                    case "Escape":
+                        Tab = false;
+                        break;
+                    default:
+                        console.log("Please update your browser, if this sit not work perfectly.")
+                }
+
+                /* Keyboard Selection Effect */
+                if (!Tab) {
+                    reDraw();
+                    document.getElementById("IsTab").setAttribute("hidden", null);
+                    poset.beginPath(),
+                        poset.arc(
+                            XYPoints[keyPosY][keyPosX][0] * x,
+                            XYPoints[keyPosY][keyPosX][1] * x,
+                            radius + 2,
+                            0,
+                            2 * Math.PI
+                        ),
+                        poset.stroke();
+                } else {
+                    console.log("Tab is activated.");
+                    document.getElementById("IsTab").removeAttribute("hidden");
+                }
+            }
+
+            /* To reset function's variables on modal close */
+            // return
+        } /* DrawingByKeyboard() END */
+
+        /* Draw Grid Circles */
+        function gridsDraw() {
+            for (let i = 0; i < morder; i++) {
+                for (let j = 0; j < morder; j++) {
+                    poset.beginPath(),
+                        poset.arc(
+                            XYPoints[i][j][0] * x,
+                            XYPoints[i][j][1] * x,
+                            radius,
+                            0,
+                            2 * Math.PI
+                        ),
+                        poset.stroke();
+                }
+            }
+            // Initialising The Coords by small circles with radius = "$radius"
+        }
+        /* Initialise the canvas frame with the grids */
+        
+        // PosetInitial();
+        function PosetInitial() {
+            /* Canvas Border Outside the Gride system */
+            poset.beginPath(); // Important
+
+            /* Define The Canvas Area */
+            poset.rect(x - 12, x - 12, width - x * 1.5, height - x * 1.5);
+            poset.stroke();
+
+
+            /* Side Headings & Titles */
+            poset.save(); // Save all previously desinged to change design only for next poset
+            (poset.textAlign = "center"),
+            (poset.font = "12px 'Arial'"),
+            poset.rotate((90 * Math.PI) / 180); // To rotate frame top-left (0, 0) to bottom-left (0, 0)
+            (max = "Maximal Elements"), poset.fillText(max, width / 2, -3);
+            /* (-ve) Height means upward */
+            (max = "Minimal Elements"), poset.fillText(max, width / 2, -height + 25);
+            for (let i = 0; i < morder; i++) {
+                // Coordinates Labeling
+                (H_no = i), poset.fillText("H:" + H_no, 17, -(x * (H_no + 1) - 6));
+                (W_no = i), poset.fillText("W:" + W_no, x * (W_no + 1), -20);
+            }
+            poset.restore(); // restore The saved design
+            console.log("Frame ReDrawn.");
+        } /* Poset Initial */
+
+        /* ============================================================ */
+        /* reDraw canvas with all drawn elements & their covers */
+        /* ============================================================ */
+        // console.table(selectedElements);
+        // reDraw();
+
+        function reDraw() {
+            /* Clear The Canvas */
+            poset.clearRect(0, 0, width, height);
+            console.log(
+                "=====================\nThe canvas Cleared.\n====================="
+            );
+
+            /* Re-Draw The Canvas Initially */
+            PosetInitial();
+
+            <?php
+            if (!isset($_GET["matrix"]) || !isset($_GET["SEs"])) {
+            ?>
+                console.log("Draw The Grids");
+                gridsDraw()
+            <?php
+            } else {
+            ?>
+                console.clear;
+                console.log("Grids Not Drawn.");
+            <?php
+            }
+            ?>
+            // console.log("The grid circles Restored by PosetInitial()."),
+            //   console.log("ReDrawing...", "\nThe selected Elements to be reDrawn.");
+
+            if (
+                selectedElements != undefined &&
+                selectedElements != null &&
+                selectedElements.length
+            ) {
+                /* Re-Draw The Selected Elements & Relations */
+                // console.table(selectedElements[0][0]);
+                for (let i = 0; i < SELength; i++) {
+                    /* Fill The Points */
+                    poset.beginPath(),
+                        poset.arc(
+                            selectedElements[i][0] * x,
+                            selectedElements[i][1] * x,
+                            radius,
+                            0,
+                            2 * Math.PI
+                        ),
+                        poset.fill();
+                    // console.log("The point ", i, " is restored.");
+
+                    /* Re-Draw The Covers of i if Exist */
+                    if (
+                        selectedElements[i][2] != undefined &&
+                        selectedElements[i][2] != null &&
+                        selectedElements[i][2].length
+                    ) {
+                        // console.log("=================\nThe Covers of", i, "are "),
+                        //   console.table(selectedElements[i][2]);
+                        /* If Any Relation Found To 'i' get Length of the Relation List */
+                        var jL = selectedElements[i][2].length; // Use var to avoid undefined error of jL outside the block
+
+                        for (let j = 0; j < jL; j++) {
+                            poset.beginPath(),
+                                poset.moveTo(
+                                    selectedElements[i][0] * x,
+                                    selectedElements[i][1] * x
+                                );
+                            poset.lineTo(
+                                selectedElements[selectedElements[i][2][j]][0] * x,
+                                selectedElements[selectedElements[i][2][j]][1] * x
+                            );
+                            // console.log(i, "is covered by ", selectedElements[i][2][j]);
+                            poset.stroke();
+                            // console.log("The Relation is restored.");
+                        } /* Covers of i Re-Drawn */
+                    } else {
+                        // console.log("No Cover is Found For ", i);
+                    }
+                } // Re-stored All
+                console.log(
+                    "=====================\nRestored Everything.\n====================="
+                );
+            } else {
+                console.log(
+                    "=====================\n=====================\nNothing To Resotred. All Elements With Their Relations/Covers Removed."
+                );
+            }
+        } // reDraw()
+
+        /* ============================================================ */
+        /* Find Indices of Least Distanced (< radius) of two Nearest (minDistance) Points from "selectedElements" matrix */
+        /* ============================================================ */
+        function LeastDistance(xCurrent, yCurrent) {
+            let Start = -1,
+                End = -1;
+            let X1, Y1, X2, Y2;
+            let minDistance = Number.MAX_SAFE_INTEGER,
+                DistanceFromPointToLine = Number.MAX_SAFE_INTEGER,
+                DistanceFromXY1ToXY2 = Number.MAX_SAFE_INTEGER;
+            /* X Coordinate of Clicked Position */
+            let xCCo = Math.floor(xCurrent / 50);
+            let count = 0; // selected Elements below xCurrent
+            selectedElements.forEach((element) => {
+                if (element[0] <= xCCo) {
+                    count++;
+                }
+            });
+            /* Get Two Points To Relate */
+            for (let i = count - 1; i >= 0; i--) {
+                /* Set X1, Y1 as 1st point down xCurrent */
+                X1 = selectedElements[i][0] * x;
+                Y1 = selectedElements[i][1] * x;
+
+                /* Find Suitable X2, Y2 for 2nd point in up xCurrent */
+                for (let j = count; j < SELength; j++) {
+                    if (selectedElements[j][0] * x > X1) {
+
+                        /* take End point */
+                        X2 = selectedElements[j][0] * x;
+                        Y2 = selectedElements[j][1] * x;
+
+                        /* Disntance From Start to End */
+                        DistanceFromXY1ToXY2 = Math.sqrt(
+                            Math.pow(X1 - X2, 2) + Math.pow(Y1 - Y2, 2)
+                        );
+
+                        /* Distance From Hovered Point To Start-End Line */
+                        DistanceFromPointToLine =
+                            Math.abs(
+                                (Y2 - Y1) * xCurrent -
+                                (X2 - X1) * yCurrent +
+                                (Y1 * (X2 - X1) - X1 * (Y2 - Y1))
+                            ) / DistanceFromXY1ToXY2;
+
+                        /* connect points with min distanced & must be less than "radius" distance */
+                        if (
+                            DistanceFromXY1ToXY2 < minDistance &&
+                            DistanceFromPointToLine <= radius
+                        ) {
+                            /* =========================================== */
+                            /* Check! is Trivial Case [Cover of Sub-cover is also a cover] */
+                            /* =========================================== */
+
+                            /* var isCovered = false => i & j is connectable */
+                            var isCovered = (IsConnectable(i, j) === true) ? true : false;
+                            // console.log("Check! Can We Relate?", i, j, !isCovered); // If Covered We can't Relate.
+
+                            /* @@@@@@@@@@@@@@@@@@@@@@@ */
+                            /* Making Relation */
+                            if (isCovered) {
+                                document.getElementById("ShowErrors").innerHTML = "Can't Relate Them.";
+                                // document.getElementById("ShowErrors").innerHTML = "Transitivity is trivial. Trivial cases are ignored for drawing simplicity.";
+                                // document.getElementById("ShowErrors").hidden = false;
+                            } else {
+                                /* Save Smallest Path & Update In Every Possible Path */
+                                // console.log("Start & End Updated. Since (minDistance =)", minDistance, ">", DistanceFromXY1ToXY2, "(DistanceFromXY1ToXY2)");
+                                minDistance = DistanceFromXY1ToXY2;
+
+                                /* Update the points To Draw */
+                                poset.beginPath(); /* Use beginPath() to prevent connection from previous path */
+                                poset.moveTo(X1, Y1);
+                                poset.lineTo(X2, Y2);
+
+                                /* Save The Indices of X1, Y1 and X2, Y2 to return to finally drawn */
+                                (Start = i), (End = j);
+                                // console.log("Start =", Start, " End = ", End);
+                                // console.table(selectedElements);
+                                // console.table(selectedElements[0][2]);
+                            } // The Relation is Trivial
+                            /* Making Relation END */
+                            /* @@@@@@@@@@@@@@@@@@@@@@@ */
+
+                        } // Click near the connection line or on nearest points // check is minDistanced
+                    } // Relate only in upword direction
+                } // For loop of j -> SELength Closed
+            } // For loop of i -> 0 Closed
+            return [Start, End];
+        } // LeastDistance()
+
+        /* Hover Efect on canvas */
+        function ShowConnection(xCurrent, yCurrent) {
+            /* Is Connectable In Hover */
+            let [Start, End] = LeastDistanceShow(xCurrent, yCurrent);
+            /* If Possible Elements Found To Relate */
+            if (Start > -1 && End > -1) {
+                // document.getElementById("Coords").innerHTML =
+                //     "The Nearest Points are: [" + Start + " ," + End + "]";
+                // console.log("The Nearest Points are: [", Start, " ,", End, "]");
+
+                /* If New Pair of Elements Found */
+                if (PStart != Start || PEnd != End) {
+                    // console.log(PStart, "!=", Start, "&", PEnd, "!=", End);
+                    Draw = 1;
+                    /* Remove previous Dashed Lines */
+                    reDraw();
+                    /* Draw The New Dashed Line */
+                    poset.save();
+                    poset.beginPath(); /* Use beginPath() to prevent connection from previous path */
+                    poset.moveTo(
+                        selectedElements[Start][0] * x,
+                        selectedElements[Start][1] * x
+                    );
+                    poset.lineTo(selectedElements[End][0] * x, selectedElements[End][1] * x);
+                    poset.setLineDash([3, 3]);
+                    poset.stroke();
+                    poset.restore();
+                } else {
+                    /* If Same Points Found Do Nothing i.e no draw or no reDraw() */
+                }
+            } else if (Draw == 1) {
+                /* If Dashed line Already Drawn & Next Mouse move Detect Nothing i.e. Start & End = -1 */
+                Draw = 0;
+                reDraw();
+            } // if (Start != -1 && End != -1) END
+            /* Save The Previous Mouse Position */
+            // console.log("Previous Mouse Position is Saved in ", Start, End);
+            (PStart = Start), (PEnd = End);
+        } // ShowConnection(xCurrent, yCurrent) END
+
+
+        /* ============================================================  */
+        /* Fill The Clicked Unfilled Gride Point Or Unfill Clicked Filled Gride Point  */
+        /* ============================================================  */
+        function fillOrUnFill(xCoord, yCoord) {
+            // console.log("In fillOrUnFill(): ", xCoord, yCoord);
+
+            /* Find the click Point's Position in Selected Elements */
+            function FindI_SE(SEs) {
+                return (
+                    SEs[0] == XYPoints[xCoord][yCoord][0] &&
+                    SEs[1] == XYPoints[xCoord][yCoord][1]
+                );
+            }
+
+            /* Fill if not filled Maximum upto MOrder nodes/Elements */
+            if (XYPoints[xCoord][yCoord][2] === false && SELength !== morder) {
+                // console.log(SELength);
+                let X = XYPoints[xCoord][yCoord][0] * x,
+                    Y = XYPoints[xCoord][yCoord][1] * x;
+
+                /* Now Draw The Node as Filled */
+                poset.beginPath(), poset.arc(X, Y, radius, 0, 2 * Math.PI), poset.fill();
+
+                /* Selected Nodes Save to 'selectedElements[]' */
+                selectedElements[SELength++] = [
+                    XYPoints[xCoord][yCoord][0],
+                    XYPoints[xCoord][yCoord][1],
+                ];
+                // console.log("The filled point is ");
+                // console.table(selectedElements[SELength - 1]);
+                XYPoints[xCoord][yCoord][2] = true; /* Fill Successfull */
+                var U = 1; /* 1 element will be added in p Position */
+                // Total Number of Filled Nodes
+                /* Ufill/Remove The node From selectedElements array if already filled */
+            } else if (XYPoints[xCoord][yCoord][2] == true) {
+                /* Find The Index Of The Point on Selectedelements */
+                var p = selectedElements.findIndex(FindI_SE);
+                /* Remove All Relations From or To This Point */
+                U = -1; // Delete 1 Element
+                /* Update The Covers According To p & U if there exist any relation to update */
+                if (SELength > 1) {
+                    /* Update The Relations in selected Elements According To (p, U) */
+                    UpdateRelations(p, U);
+                    // console.log("All Relations are Updated. Now Remove", p, "From:"),
+                    //   console.table(selectedElements);
+                }
+                /* Now Remove P Element & All Relations From it */
+                // console.table(selectedElements[p]);
+                // if (
+                //   selectedElements[p][2] != undefined &&
+                //   selectedElements[p][2] != null &&
+                //   selectedElements[p][2].length
+                // ) {
+                //   console.log("with the relations "), console.table(selectedElements[p][2]);
+                // }
+
+                selectedElements.splice(p--, 1);
+                SELength--;
+                XYPoints[xCoord][yCoord][2] = false; /* Unfill Successfull */
+                // console.log("Now Redrawn Poset is:"), console.table(selectedElements);
+                reDraw();
+            } else {
+                /* If More than morder is selected */
+                document.getElementById("ShowErrors").hidden = false;
+                document.getElementById("ShowErrors").innerHTML = morder + " Elements are already selected.";
+                return
+            }
+            // console.table("XYPoints: ", XYPoints[xCoord][yCoord]);
+
+            /* Sort The Filled Nodes Array */
+            /* ================================================== */
+            function Sorting2DArray(a, b) {
+                if (a[0] == b[0]) {
+                    /* If in same Height sort accending by Width */
+                    // console.log("Sorting");
+                    return a[1] - b[1];
+                } else {
+                    return a[0] - b[0];
+                }
+            }
+            selectedElements.sort(Sorting2DArray); // Again sort about second element if 1st are same
+            // console.table(selectedElements);
+
+            let P = selectedElements.findIndex(FindI_SE);
+            if (SELength > 2 && P > -1) {
+                /* Update The Relations in selected Elements According To (p, U) */
+                // console.log("Updating Relations For", P);
+                UpdateRelations(P, U);
+            }
+
+            /* Copy Nodes To a new array for showConnection() to get hover effect */
+            // let Copy_nodes_i = 0;
+            // selectedElements.forEach((element) => {
+            //     // get only filled elements without connections
+            //     HEs[Copy_nodes_i] = [];
+            //     HEs[Copy_nodes_i][0] = element[0];
+            //     HEs[Copy_nodes_i][1] = element[1];
+            //     Copy_nodes_i++;
+            // });
+        } // fillOrUnFill(xCoord, yCoord)
+
+        /** 
+         * ===========================================================
+         * Connect Two Selected Points (Start (<) End, are selectedElements's index)
+         * ===========================================================
+         */
+        function connectLine(Start, End) {
+            if (
+                selectedElements[Start][2] != undefined &&
+                selectedElements[Start][2] != null
+            ) {
+                /* Check They are already connected (return Index) or Not (return -1). */
+                /* Find The Index Of the element to remove */
+                let k = selectedElements[Start][2].findIndex(function(arr) {
+                    return arr == End;
+                });
+                if (k != -1) {
+                    /* If They already Connected Then Remove The Connection. */
+                    selectedElements[Start][2].splice(k--, 1);
+                } else {
+                    /* If New Connection (k = -1) Then Push To The Array Start.e. connect them. */
+                    selectedElements[Start][2].push(End);
+                    connected = 1;
+                }
+            } else {
+                selectedElements[Start][2] = [End];
+                connected = 1; /* Start & End Already Connected */
+            }
+            /* Sort The Covering Elements for convenience searching on letter functions */
+            selectedElements[Start][2].sort(function(a, b) {
+                return a - b;
+            });
+            /* A New Connection Created (1) or A Connection Removed (-1) */
+            if (connected == 1) {
+                poset.stroke();
+            } else {
+                reDraw();
+            }
+        } /* ConnectLine(Start, End) END */
+
+    }
 
     /* ============================================================ */
     /* Is Start & End connectable? return true or false */
@@ -670,577 +1212,61 @@
     } /* UpdateRelations(p) END */
 
     /* ============================================================  */
-    /* Fill The Clicked Unfilled Gride Point Or Unfill Clicked Filled Gride Point  */
-    /* ============================================================  */
-    function fillOrUnFill(xCoord, yCoord) {
-        // console.log("In fillOrUnFill(): ", xCoord, yCoord);
-
-        /* Find the click Point's Position in Selected Elements */
-        function FindI_SE(SEs) {
-            return (
-                SEs[0] == XYPoints[xCoord][yCoord][0] &&
-                SEs[1] == XYPoints[xCoord][yCoord][1]
-            );
-        }
-
-        /* Fill if not filled Maximum upto MOrder nodes/Elements */
-        if (XYPoints[xCoord][yCoord][2] === false && SELength !== morder) {
-            // console.log(SELength);
-            let X = XYPoints[xCoord][yCoord][0] * x,
-                Y = XYPoints[xCoord][yCoord][1] * x;
-
-            /* Now Draw The Node as Filled */
-            poset.beginPath(), poset.arc(X, Y, radius, 0, 2 * Math.PI), poset.fill();
-
-            /* Selected Nodes Save to 'selectedElements[]' */
-            selectedElements[SELength++] = [
-                XYPoints[xCoord][yCoord][0],
-                XYPoints[xCoord][yCoord][1],
-            ];
-            // console.log("The filled point is ");
-            // console.table(selectedElements[SELength - 1]);
-            XYPoints[xCoord][yCoord][2] = true; /* Fill Successfull */
-            var U = 1; /* 1 element will be added in p Position */
-            // Total Number of Filled Nodes
-            /* Ufill/Remove The node From selectedElements array if already filled */
-        } else if (XYPoints[xCoord][yCoord][2] == true) {
-            /* Find The Index Of The Point on Selectedelements */
-            var p = selectedElements.findIndex(FindI_SE);
-            /* Remove All Relations From or To This Point */
-            U = -1; // Delete 1 Element
-            /* Update The Covers According To p & U if there exist any relation to update */
-            if (SELength > 1) {
-                /* Update The Relations in selected Elements According To (p, U) */
-                UpdateRelations(p, U);
-                // console.log("All Relations are Updated. Now Remove", p, "From:"),
-                //   console.table(selectedElements);
-            }
-            /* Now Remove P Element & All Relations From it */
-            // console.table(selectedElements[p]);
-            // if (
-            //   selectedElements[p][2] != undefined &&
-            //   selectedElements[p][2] != null &&
-            //   selectedElements[p][2].length
-            // ) {
-            //   console.log("with the relations "), console.table(selectedElements[p][2]);
-            // }
-
-            selectedElements.splice(p--, 1);
-            SELength--;
-            XYPoints[xCoord][yCoord][2] = false; /* Unfill Successfull */
-            // console.log("Now Redrawn Poset is:"), console.table(selectedElements);
-            reDraw();
-        } else {
-            /* If More than morder is selected */
-            document.getElementById("ShowErrors").hidden = false;
-            document.getElementById("ShowErrors").innerHTML = morder + " Elements are already selected.";
-            return
-        }
-        // console.table("XYPoints: ", XYPoints[xCoord][yCoord]);
-
-        /* Sort The Filled Nodes Array */
-        /* ================================================== */
-        function Sorting2DArray(a, b) {
-            if (a[0] == b[0]) {
-                /* If in same Height sort accending by Width */
-                // console.log("Sorting");
-                return a[1] - b[1];
-            } else {
-                return a[0] - b[0];
-            }
-        }
-        selectedElements.sort(Sorting2DArray); // Again sort about second element if 1st are same
-        // console.table(selectedElements);
-
-        let P = selectedElements.findIndex(FindI_SE);
-        if (SELength > 2 && P > -1) {
-            /* Update The Relations in selected Elements According To (p, U) */
-            // console.log("Updating Relations For", P);
-            UpdateRelations(P, U);
-        }
-        /* Copy Nodes To a new array for showConnection() to get hover effect */
-        let Copy_nodes_i = 0;
-        selectedElements.forEach((element) => {
-            // get only filled elements without connections
-            HEs[Copy_nodes_i] = [];
-            HEs[Copy_nodes_i][0] = element[0];
-            HEs[Copy_nodes_i][1] = element[1];
-            Copy_nodes_i++;
-        });
-    } // fillOrUnFill(xCoord, yCoord)
-
-    /** 
-     * ===========================================================
-     * Connect Two Selected Points (Start (<) End, are selectedElements's index)
-     * ===========================================================
-     */
-    function connectLine(Start, End) {
-        if (
-            selectedElements[Start][2] != undefined &&
-            selectedElements[Start][2] != null
-        ) {
-            /* Check They are already connected (return Index) or Not (return -1). */
-            /* Find The Index Of the element to remove */
-            let k = selectedElements[Start][2].findIndex(function(arr) {
-                return arr == End;
-            });
-            if (k != -1) {
-                /* If They already Connected Then Remove The Connection. */
-                selectedElements[Start][2].splice(k--, 1);
-            } else {
-                /* If New Connection (k = -1) Then Push To The Array Start.e. connect them. */
-                selectedElements[Start][2].push(End);
-                connected = 1;
-            }
-        } else {
-            selectedElements[Start][2] = [End];
-            connected = 1; /* Start & End Already Connected */
-        }
-        /* Sort The Covering Elements for convenience searching on letter functions */
-        selectedElements[Start][2].sort(function(a, b) {
-            return a - b;
-        });
-        /* A New Connection Created (1) or A Connection Removed (-1) */
-        if (connected == 1) {
-            poset.stroke();
-        } else {
-            reDraw();
-        }
-    } /* ConnectLine(Start, End) END */
-    /* ============================================================  */
-    /* ############################# Draw Solid Line If Click In Possible Connection ############################# */
-    /* ============================================================  */
-    function DrawPoset(xCurrent, yCurrent) {
-        let K = 0;
-        /* Find The Distance From The Mesh Points To The Clicked Point */
-        [xCoord, yCoord, K] = findDistFromGrids(xCurrent, yCurrent);
-        /* FILL IF NOT CHECKED UNFILLED IF CHECKED */
-        if (DistanceFromGrids[K] <= radius + 1) {
-            // console.log("In DrawPoset() ", xCoord, yCoord);
-            /* Fill The Element As Selected Nodes */
-            fillOrUnFill(xCoord, yCoord);
-        } else if (SELength > 1) {
-
-            /* Connect Two Points If minimum TWO Elements Selected. */
-            let [Start, End] = LeastDistance(xCurrent, yCurrent);
-
-            /* If Found Any Nearest Selected Points To Connect */
-            if (Start != -1) {
-                // console.log("Connect The Points: ", Start, End);
-                let connected = -1; // Let They are not connected.
-                /* Define array's new dimention for connectedness if not defined */
-                connectLine(Start, End);
-            }
-        } else {
-            document.getElementById("ShowErrors").hidden = false;
-            document.getElementById("ShowErrors").innerHTML =
-                "Please Select At Least Two Points Before To Connect.";
-        }
-        /* Show the selectedElements with relations */
-        // let TL = selectedElements.length;
-        // if (selectedElements.length) {
-        //   console.table(selectedElements);
-        //   for (let i = 0; i < TL; i++) {
-        //     if (
-        //       selectedElements[i][2] != undefined &&
-        //       selectedElements[i][2] != null &&
-        //       selectedElements[i][2].length
-        //     ) {
-        //       let TLL = selectedElements[i][2].length;
-        //       // for(let j = 0; j<TLL; j++){
-        //   console.log("Cover of ", i);
-        //       console.table(selectedElements[i][2]);
-        //       // }
-        //     }
-        //   }
-        // }
-    }
-
-    /* ============================================================  */
-    /* ############################# GET THE MOUSE DOWN POSITION ################ */
-    /* ============================================================  */
-    function getMousePosition(canvas, event) {
-        // let rect = canvas.getBoundingClientRect(); // Boundary Coords of canvas
-        // no click = 0, right click = 2
-        if (event.keyCode !== undefined && event.key !== undefined) {
-            var mouseClick = event.keyCode || event.key || event.button;
-        } else {
-            var mouseClick = event.button;
-        }
-        // console.log(mouseClick);
-        // console.log(event.key);
-        if (mouseClick === 1) {
-            // left click only
-            let x = event.offsetX;
-            let y = event.offsetY;
-            return [x, y];
-        } else if (mouseClick === 0) {
-            /* For Hover / No Click*/
-            let x = event.offsetX;
-            let y = event.offsetY;
-            return [x, y];
-        } else {
-            // console.log("Not-Clicked.");
-            return [0, 0];
-        }
-
-    } /* Mouse Position for an event */
-
-    /* ============================================================  */
     /* ############################# To Draw Line Between Possible Related Points on Click ############################# */
     /* ============================================================  */
+    // if (typeof(poset) !== undefined) {
+
     const Canvas = document.querySelector("#poset");
-    Canvas.addEventListener("mouseup", function(e) {
-        // console.log("Mouse Up Event.");
-        let [xCurrent, yCurrent] = getMousePosition(Canvas, e);
-        /* "event.which == 1" Only left mouse click is enabled on inner small square area*/
+    // console.log(Canvas);
+    if (Canvas !== null) {
+        Canvas.addEventListener("mouseup", function(e) {
+            // console.log("Mouse Up Event.");
+            let [xCurrent, yCurrent] = getMousePosition(Canvas, e);
+            /* "event.which == 1" Only left mouse click is enabled on inner small square area*/
 
-        if (
-            xCurrent >= x - 5 &&
-            yCurrent > x - 5 &&
-            xCurrent <= width - x + 5 &&
-            yCurrent <= height - x + 5 &&
-            (e.which === 1 || e.button === 0)
-        ) {
-            // document.getElementById("Coords").innerHTML =
-            //     "The Selected Point is: [" +
-            //     Math.round(xCurrent / x) +
-            //     " ," +
-            //     Math.round(yCurrent / x) +
-            //     "]";
-            // console.log(xCurrent, yCurrent);
-            DrawPoset(xCurrent, yCurrent);
-        }
-        // else {
-        // console.log("Do Nothing In Mouse Up Event.");
-        // }
-    });
-
-    /* ============================================================  */
-    /* To Draw Dotted Line Between Possible Related Points on Hover */
-    /* ============================================================  */
-    const canvasHover = Canvas;
-    canvasHover.addEventListener("mousemove", function(e) {
-        // console.log("Mouse Move Event.");
-        let [xCurrent, yCurrent] = getMousePosition(canvasHover, e);
-        /* Active the function on small square after minimum 2 element selection. */
-        if (
-            xCurrent >= x - 5 &&
-            yCurrent >= x - 5 &&
-            xCurrent <= width - x + 5 &&
-            yCurrent <= height - x + 5 && selectedElements.length > 1
-        ) {
-            ShowConnection(xCurrent, yCurrent);
-        }
-        // else {
-        // console.log("Do Nothing in Mouse Move.");
-        // }
-    });
-
-    /* ============================================================  */
-    /* Transitional Cover Matrix Formation  */
-    /* ============================================================  */
-    function transitionalCoverMatrix() {
-        SELength = selectedElements.length;
-        console.log("Create Transitional Cover Matrix with length is: ", SELength);
-        if (SELength) {
-            let CoverMatrixLength = (Math.pow(SELength, 2) - SELength) / 2; // Length of the posetMatrix [Upper Triangular]
-            // console.log(CoverMatrixLength);
-
-            /* Transitional Cover Matrix */
-            const posetTCM = new Array(CoverMatrixLength).fill(0); // Initialize as 0
-            // let SEsC = selectedElements; // Two var useing same location & same value
-            // let SEsC = [];
-            /* to seperate vars location */
-            var SEsC = JSON.parse(JSON.stringify(selectedElements));
-
-            // console.log("selected Elements: "),
-            //     console.table(selectedElements);
-
-            // console.table(SEsC);
-
-            /* Transit Cover Matrix */
-            for (let j = morder - 3; j >= 0; j--) {
-                /* If The (j) element has no relation, Needn't check further */
-                // var PTCM = SEsC[j][2].length;
-                if (
-                    SEsC[j][2] != undefined &&
-                    SEsC[j][2] != null &&
-                    SEsC[j][2].length
-                ) {
-
-                    // console.log(SEsC),
-                    //     console.log('j = ', j);
-                    for (let k = j + 1; k < morder - 1; k++) {
-
-                        /* Is j -> k ? */
-                        let idxj = SEsC[j][2].findIndex(function(a) {
-                            // console.log("j = ", j, "\n"),
-                            // console.table(a, "?=", j + 1);
-                            return a === k;
-                        })
-
-                        /* If j related to k then */
-                        if (idxj !== -1) {
-                            // console.log('k = ', k),
-                            //     console.log(j, '->', k, " Found in idx = ", idxj);
-
-                            /* If Next element (k) has no relation, Needn't check further */
-                            if (
-                                SEsC[k][2] != undefined &&
-                                SEsC[k][2] != null &&
-                                SEsC[k][2].length
-                            ) {
-                                for (let l = k + 1; l < morder; l++) {
-
-                                    /* Is k -> l ? */
-                                    let idxk = SEsC[k][2].findIndex(function(b) {
-                                        // console.log("j+1 = ", j + 1, "\n");
-                                        // console.table(b, "?=", k + 1);
-                                        return b === l;
-                                    })
-
-                                    /* If k -> l then */
-                                    if (idxk !== -1) {
-                                        // console.log('l = ', l),
-                                        // console.log(k, '->', l, " Found in idx = ", idxk);
-                                        // console.log(j, " Update -> ", l);
-
-                                        /* Append to The Relations */
-                                        // PTCM = SEsC[j][2].length;
-                                        console.log("Selected Element Matrix before:");
-                                        console.table(selectedElements);
-
-                                        SEsC[j][2][SEsC[j][2].length] = l;
-
-                                        console.log("Copy of Selected Element Matrix:"), console.table(SEsC);
-
-                                        console.log("But Selected Element Matrix remain Unchanged:"),
-                                            console.table(selectedElements);
-                                        // SEsC = 0;
-                                        // return;
-                                    }
-                                }
-
-                                // console.log("Is =? ", SEsC[j][2].length, morder - j - 1);
-                                // PTCM = SEsC[j][2].length;
-                                /* If Already All Updated Then 'break' */
-                                if (SEsC[j][2].length == morder - j - 1) {
-                                    // console.log(j, " is connected to "),
-                                    // console.table(SEsC[j][2]);
-                                    break;
-                                }
-
-                            }
-                        }
-                    }
-                } /* SEsC's j'th element has no cover matrix */
-            } /* END FOR loop :=> Transit Cover Matrix */
-
-            /* Find The Cover Matrix */
-            let relations = [];
-            for (let i = 0; i < SELength; i++) {
-                if (
-                    SEsC[i][2] != undefined &&
-                    SEsC[i][2] != null &&
-                    SEsC[i][2].length
-                ) {
-                    let RL = SEsC[i][2].length;
-                    for (let k = 0; k < RL; k++) {
-                        let cover = SEsC[i][2][k];
-                        let idx = SELength * i + cover - ((i + 1) * (i + 2)) / 2; // Find the idx from relational values.
-                        posetTCM[idx] = 1; // If related assign 1
-                    }
-
-                    /* Save The Number of Covers Elements */
-                    relations[i] = selectedElements[i][2].length;
-                    console.log("selected Element for ", i, "th value is: ");
-                    console.table(selectedElements[i][2]);
-                    console.log("So no. of relation: ", relations[i]);
-
-                } else {
-                    relations[i] = 0;
-                    console.log("selected Element for ", i, "th value is: ");
-                    console.table(selectedElements[i][2]);
-                    console.log("So no. of relation: ", relations[i]);
-                }
+            if (
+                xCurrent >= x - 5 &&
+                yCurrent > x - 5 &&
+                xCurrent <= width - x + 5 &&
+                yCurrent <= height - x + 5 &&
+                (e.which === 1 || e.button === 0)
+            ) {
+                // document.getElementById("Coords").innerHTML =
+                //     "The Selected Point is: [" +
+                //     Math.round(xCurrent / x) +
+                //     " ," +
+                //     Math.round(yCurrent / x) +
+                //     "]";
+                // console.log(xCurrent, yCurrent);
+                DrawPoset(xCurrent, yCurrent);
             }
+            // else {
+            // console.log("Do Nothing In Mouse Up Event.");
+            // }
+        });
 
-
-            // return [posetTCM, selectedElements];
-            // document.getElementById("outputMatrix").innerHTML = "<?php // $_SESSION['SEs'] = '" + selectedElements + "';
-                                                                    // $_SESSION['SEs_rels'] = '" + relations + "'; 
-                                                                    ?>";
-            console.log("Relations: ");
-            console.table(relations);
-            console.log("Session OutPut: ");
-            // console.table(document.getElementById("outputMatrix").innerHTML);
-            // console.log("<?php // print_r($_SESSION["SEs"]); 
-                            ?>");
-
-            // console.log("selected Elements: ");
-
-
-            /* To draw in index.php page */
-            console.log("Transitional Cover Matrix Created as:");
-            console.table(posetTCM);
-            return posetTCM;
-        } /* IF END */
-        // else {
-        // console.log("Please Select Atleast One Elements.");
-        //     // return 0;
-        // }
-    } /* createRelationalTable() END */
-
-    /* Keyboard Features for Drawing Tool */
-    function DrawingByKeyboard() {
-        // console.log("Modal Showing.");
-        var PreventFill = true; /* To prevent filled the element on keyboard 'Enter' in "Drawing Tool" button */
-        Tab = false;
-        document.getElementById("IsKeyboard").innerHTML = "Keyboard Feature is <span class='text-info'>On</span>. [Use mouse for more flexibility & guidlines]<br> <span class='text-dark'> <kbd>Enter</kbd> to select &amp; <kbd>Shift</kbd> + <kbd>Enter</kbd> to relate</span>";
-
-        /* Keyboard Event */
-        document.onkeyup = function(e) {
-            /* for keyborad, e.which is deprecated */
-            /* Is Shift key pressed */
-            let Shift = e.shiftKey;
-            // Alt = e.altKey;
-            // Ctrl = e.ctrlKey;
-
-            // console.log("key:", e.key);
-            switch (e.key) {
-                case "ArrowLeft":
-                    /* move selection left by 1 */
-                    if (keyPosX !== 0) {
-                        keyPosX--;
-                    }
-
-                    // console.log("Left Key Pressed Here. keyPosX=", keyPosX);
-                    break;
-                case "ArrowUp":
-                    /* move selection up by 1 */
-                    if (keyPosY !== morder - 1) {
-                        keyPosY++;
-                    }
-
-                    // console.log("Up Key Pressed. keyPosY=", keyPosY);
-                    break;
-                case "ArrowRight":
-                    /* move selection Right by 1 */
-                    if (keyPosX !== morder - 1) {
-                        keyPosX++;
-                    }
-
-                    // console.log("Right Key Pressed. keyPosX=", keyPosX);
-                    break;
-                case "ArrowDown":
-                    /* move selection Down by 1 */
-                    if (keyPosY !== 0) {
-                        keyPosY--;
-                    }
-
-                    // console.log("Down Key Pressed. keyPosY=", keyPosY);
-                    break;
-                case "Enter":
-                    /* If Shift+Enter pressed then select to relate the elements */
-                    if (Shift) {
-                        /* If not filled then filled first then select to relate */
-                        if (!XYPoints[keyPosY][keyPosX][2]) {
-                            DrawPoset(XYPoints[keyPosY][keyPosX][0] * x, XYPoints[keyPosY][keyPosX][1] * x);
-                        }
-
-                        /* Select The Current Element From Grids */
-                        function Select(element) {
-                            // console.log("element: ", element, " ?= ", XYPoints[keyPosY][keyPosX]);
-                            return element[0] === XYPoints[keyPosY][keyPosX][0] &&
-                                element[1] === XYPoints[keyPosY][keyPosX][1]
-                        }
-
-                        if (PStart === -1 || PEnd !== -1) {
-                            /* PStart was unset (For First Time) Or PEnd was Set (For Next Time, To Reset PStart) */
-                            let StartTmp = selectedElements.findIndex(Select);
-                            // console.log(StartTmp);
-                            if (StartTmp !== -1) {
-                                console.log("Start = ", StartTmp, " is set.");
-                                PStart = StartTmp;
-                            }
-                        } else {
-
-                            /* PStart is set && PEnd is unset */
-                            let StartTmp = selectedElements.findIndex(Select);
-                            if (StartTmp !== -1 && StartTmp !== PStart) {
-                                console.log("End = ", StartTmp, " is set.");
-                                PEnd = StartTmp;
-
-                                /* Connect The Start & End Elements */
-                                connectLine((PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd);
-                                console.log("The Elements ", (PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd, " is Connected Or Dis-connected.");
-                                PStart = -1;
-                                PEnd = -1;
-                            }
-                        }
-                    }
-
-                    /* If 'Tab' press before 'Enter' Or modal show button is clicked by 'Enter' Or Shift key pressed with filled element then Do Nothing on 'Enter' */
-                    if (PreventFill || (Tab || (Shift && XYPoints[keyPosY][keyPosX][2]))) {
-                        /* Change The value After First 'Enter' Key press */
-                        PreventFill = false;
-                        // break;
-                    } else {
-                        /* Else Fill The Selection */
-                        DrawPoset(XYPoints[keyPosY][keyPosX][0] * x, XYPoints[keyPosY][keyPosX][1] * x);
-                        // console.log(XYPoints[keyPosY][keyPosX][0], XYPoints[keyPosY][keyPosX][1], " (XYPoints) Filled is ", XYPoints[keyPosY][keyPosX][2]);
-                    }
-
-
-                    break;
-                case "Tab":
-                    // console.log("Tab pressed.");
-                    // console.log("Tab -> True");
-                    Tab = true;
-                    reDraw();
-                    break;
-                case "Escape":
-                    Tab = false;
-                    break;
-                default:
-                    console.log("Please update your browser, if this sit not work perfectly.")
+        /* ============================================================  */
+        /* To Draw Dotted Line Between Possible Related Points on Hover */
+        /* ============================================================  */
+        const canvasHover = Canvas;
+        canvasHover.addEventListener("mousemove", function(e) {
+            // console.log("Mouse Move Event.");
+            let [xCurrent, yCurrent] = getMousePosition(canvasHover, e);
+            /* Active the function on small square after minimum 2 element selection. */
+            if (
+                xCurrent >= x - 5 &&
+                yCurrent >= x - 5 &&
+                xCurrent <= width - x + 5 &&
+                yCurrent <= height - x + 5 && selectedElements.length > 1
+            ) {
+                ShowConnection(xCurrent, yCurrent);
             }
-
-            /* Keyboard Selection Effect */
-            if (!Tab) {
-                reDraw();
-                document.getElementById("IsTab").setAttribute("hidden", null);
-                poset.beginPath(),
-                    poset.arc(
-                        XYPoints[keyPosY][keyPosX][0] * x,
-                        XYPoints[keyPosY][keyPosX][1] * x,
-                        radius + 2,
-                        0,
-                        2 * Math.PI
-                    ),
-                    poset.stroke();
-            } else {
-                console.log("Tab is activated.");
-                document.getElementById("IsTab").removeAttribute("hidden");
-            }
-        }
-
-        /* To reset function's variables on modal close */
-        // return
-    } /* DrawingByKeyboard() END */
-
-    /* Delete All Elements And There Relations & Update 'XYPoints' Matrix */
-    function resetCanvas() {
-        document.getElementById("ShowErrors").hidden = true;
-        // console.log("@@@@@@@@@@@@@@@@@\nClearing The Canvas...\n@@@@@@@@@@@@@@");
-
-        while (L = selectedElements.length) { // selectedElements.length dicrease to 0 as deletion
-            // console.log("SEs Length in resetCanvas(): ", L);
-            // console.log("Deleted Element is: ", selectedElements[0][0] * x, selectedElements[0][1] * x);
-
-            /* All Selected Elements Sorted The Re arrange From 0 index */
-            DrawPoset(selectedElements[0][0] * x, selectedElements[0][1] * x);
-        }
-    } /* resetCanvas() END */
+            // else {
+            // console.log("Do Nothing in Mouse Move.");
+            // }
+        });
+    }
+    <?php
+    // exit(); 
+    ?>
 </script>

@@ -7,6 +7,8 @@ $MOrder = $_GET["Order"];
 </head>
 <script>
     morder = <?= $MOrder; ?>;
+    const x = 50, // The gride start from x
+        radius = 5;
     /* ========= Initialising The Variables =========== */
     var xCoord = 0,
         yCoord = 0,
@@ -27,6 +29,9 @@ $MOrder = $_GET["Order"];
         XYPoints = []; // Mesh Points with max info
     /* ========= Initialisation of Canvas =========== */
 </script>
+<?php
+include "script.php";
+?>
 
 <body class="bg-white-50 text-dark">
     <!-- Styles Every HTML markups if possible. -->
@@ -207,10 +212,10 @@ $MOrder = $_GET["Order"];
             $result = mysqli_query($conn, $stmt_1);
             $num = mysqli_num_rows($result);
             ?>
-                <script>
+                <!-- <script>
                     /* Hide drawing tool in menual search */
                     document.getElementById("poset").hidden = true;
-                </script>
+                </script> -->
                 <!-- ############################################### 
                 Search Interval 
                 ############################################### -->
@@ -293,7 +298,7 @@ $MOrder = $_GET["Order"];
                                             echo "<hr>";
                                             if ($MatrixNo == $Max and $Max < $num) {
                                             ?>
-                                                <button onclick="SearchNext10()" class='border border-3 p-3 rounded'>Search Up To <?= $num ?><sup> <?= $place ?> </sup> Posets By Search Box.</button>
+                                                <button onclick="SearchNext10()" class='border border-3 border-success p-2 rounded'>See More >></button>
                                                 <script>
                                                     /**
                                                      * Show Next 10 Posets On Click The Button
@@ -313,6 +318,7 @@ $MOrder = $_GET["Order"];
                                                                                                 ?>";
 
                                                         document.getElementById("IntervalForm").submit();
+                                                        return;
                                                     }
                                                 </script>
                                             <?php
@@ -375,7 +381,7 @@ $MOrder = $_GET["Order"];
                         <div id="matrix-<?= $Matrix ?>" class='col border-start-end mx-auto h-100 position-relative' style='min-width: <?= $MOrder * 40 ?>px; max-width: <?= $MOrder * 40 + 30 ?>px;'>
                             <!-- Matrix Rows -->
                             <?php for ($i = 0; $i < $MOrder; $i++) { ?>
-                                <div class='row m-auto' style='width: <?= $MOrder * 40 ?>px'>
+                                <div class='row m-auto fs-5' style='width: <?= $MOrder * 40 ?>px'>
                                     <!-- Matrix Row -->
                                     <?php
                                     for ($j = 0; $j < $MOrder; $j++) {
@@ -411,21 +417,59 @@ $MOrder = $_GET["Order"];
                     ?>
                         <!-- Draw The Poset Which is just Inputed to search -->
                         <div class="text-center" data-bs-content="Draw The Hasse Diagram of The Poset Matrix.">
-                            <canvas id="poset" width="200" height="200" class="border border-4 border-dark shadow-lg p-0">
+                            <canvas id="poset-Draw" width="200" height="200" class="border border-4 border-dark shadow-lg p-0">
                                 Sorry! Canvas Is Not Supported In Your Browser. Please Search manually.
                             </canvas>
                         </div>
+                        <script>
+                            // console.log("What is this?");
+                            /* For Drawing (canvas) Tool */
+                            var poset = document.getElementById("poset-Draw").getContext("2d"),
+                                width = (document.getElementById("poset-Draw").width = (morder + 1) * x),
+                                height = (document.getElementById("poset-Draw").height = (morder + 1) * x);
+                            // console.log(poset);
+                            reDraw();
+                        </script>
                     <?php
+                        // return;
                     } else {
                     ?>
+                        <!-- For Searching (canvas) Tool -->
                         <a href='#' data-bs-toggle="modal" data-bs-target="#PosetMatrix-<?php echo $Matrix; ?>"><img title='Poset-Matrix' src='<?php echo $dir = "./Database/hasseDiagrams/allposets5_4_3.gif"; ?>' alt='Poset-Matrix Figure Goes Here.' width='150'></a>
+                        <!-- <div class="text-center" data-bs-content="Draw The Hasse Diagram of The Poset Matrix.">
+                            <canvas id="poset-<?= $Matrix; ?>" width="200" height="200" class="border border-4 border-dark shadow-lg p-0">
+                                Sorry! Canvas Is Not Supported In Your Browser. Please Search manually.
+                            </canvas>
+                        </div> -->
+
+                        <!-- <script>
+                            var poset = document.getElementById("poset-<?= $Matrix; ?>").getContext("2d"),
+                                width = (document.getElementById("poset-<?= $Matrix; ?>").width = (morder + 1) * x),
+                                height = (document.getElementById("poset-<?= $Matrix; ?>").height = (morder + 1) * x);
+                            console.log(poset);
+                        </script> -->
                     <?php } ?>
                 </div> <!-- Hasse Diagram END -->
                 <!-- <td class='p-2 w-50'><a href='#' data-bs-toggle="modal" data-bs-target="#PosetMatrix-<?php echo $Matrix; ?>"><img title='Poset-Matrix' src='<?php // echo $dir = "./Database/hasseDiagrams/allposets$MOrder+'_'+$Height+'_'+$Width.gif"; 
                                                                                                                                                                     ?>' alt='Poset-Matrix Figure Goes Here.' width='150'></a></td> -->
 
+                <script>
+                    // console.log(poset);
+                    // var poset = document.getElementById("poset").getContext("2d"),
+                    //     width = (document.getElementById("poset").width = (morder + 1) * x),
+                    //     height = (document.getElementById("poset").height = (morder + 1) * x);
+                    var matrixBeforeAfter = document.querySelector("#matrix-<?= $Matrix ?>");
+                    // console.log(matrixBeforeAfter);
+                    /* Set The Size Of The Paranthisis (Matrix Notation) According To Matrix Size */
+                    if (matrixBeforeAfter) {
+                        matrixBeforeAfter.style.setProperty("--morder-font-size", "<?php echo $MOrder * 35 ?>px");
+                    }
+                    // selectedElemets = json.parse("<?php // echo $_GET["SEs"] 
+                                                        ?>");
+                </script>
+
                 <!-- ################ MODAL FOR POSET-MATRIX FIGURE ############## -->
-                <div class="modal fade" id="PosetMatrix-<?php echo $Matrix; ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="PosetMatrixLabel-<?php echo $Matrix; ?>" aria-hidden="true">
+                <div class="modal fade" id="PosetMatrix-<?= $Matrix; ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="PosetMatrixLabel-<?php echo $Matrix; ?>" aria-hidden="true">
                     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -447,33 +491,12 @@ $MOrder = $_GET["Order"];
                     </div> <!-- Modal Dialog END -->
                 </div> <!-- Modal END -->
             </div> <!-- row End || [Matrix & Hasse Diagram] Shown-->
-            <script>
-                var matrixBeforeAfter = document.querySelector("#matrix-<?= $Matrix ?>");
-                // console.log(matrixBeforeAfter);
-                /* Set The Size Of The Paranthisis (Matrix Notation) According To Matrix Size */
-                if (matrixBeforeAfter) {
-                    matrixBeforeAfter.style.setProperty("--morder-font-size", "<?php echo $MOrder * 35 ?>px");
-                }
-                // selectedElemets = json.parse("<?php // echo $_GET["SEs"] 
-                                                    ?>");
-            </script>
         <?php
         } // MatrixConstruction() END
         ?>
-        <script>
-            // reDraw();
-
-            const x = 50, // The gride start from x
-                radius = 5,
-                width = (document.getElementById("poset").width = (morder + 1) * x),
-                height = (document.getElementById("poset").height = (morder + 1) * x),
-                poset = document.getElementById("poset").getContext("2d");
-        </script>
     </footer>
-
     <!-- Footer -->
     <?php
     mysqli_close($conn);
     include "footer.php";
-    include "script.php";
     ?>

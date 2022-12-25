@@ -23,6 +23,7 @@ Table Of Contents:
 }
 
 body {
+	font-size: 1rem;
 	min-width: 600px;
 	max-width: 90%;
 	margin-left: auto;
@@ -69,11 +70,17 @@ a:hover {
 }
 
 
-canvas#poset {
+canvas[id=poset] {
 	cursor: pointer;
+}
+
+canvas[id|=poset] {
 	transform: rotate(-90deg);
 }
 
+/* [id|=matrix]{
+	font-size: 1.125rem !important;
+} */
 .border-end {
 	display: flex;
 	/* flex-direction: column; */
@@ -96,7 +103,7 @@ canvas#poset {
 
 /* Matrix Formating */
 :root {
-	--morder-font-size: 50px;
+	--morder-font-size: 3.125rem;
 }
 
 .border-start-end::before {
@@ -218,7 +225,7 @@ textarea {
 }
 
 label {
-	font-size: 16px;
+	font-size: 1rem;
 	padding: 10px;
 }
 

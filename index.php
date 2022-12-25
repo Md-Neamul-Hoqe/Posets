@@ -28,14 +28,11 @@
                               // }
 
                               $sqlQuery = "SELECT DISTINCT allposets.`MatrixOrder` FROM allposets";
-                              $result = mysqli_query($conn, $sqlQuery);
-                              if (!$result) {
-                                   die("Sorry. Required Data Not Found In Database." . mysqli_errno($conn) . ": " . mysqli_error($conn));
-                              }
+                              $result = mysqli_query($conn, $sqlQuery) or die("Sorry. Required Data Not Found In Database." . mysqli_errno($conn) . ": " . mysqli_error($conn));
 
                               // $num = $result->num_rows;
                               while ($Orders = mysqli_fetch_assoc($result)) {
-                                   echo "<option value='$Orders[MatrixOrder]' class='fs-5 lh-sm'>Order $Orders[MatrixOrder]</option>";
+                                   echo "<option value='$Orders[MatrixOrder]' class='fs-5 lh-lg'>Order $Orders[MatrixOrder]</option>";
                               }
                               ?>
 
@@ -43,7 +40,7 @@
                          <input style="width: 150px;" class="px-0 mt-2 btn btn-outline-dark border-opacity-25 border" type="submit" name="submitOrder" value="Save Order">
 
                          <!-- Show Drawing Tool Button If Matrix Order is set. -->
-                         <?php echo isset($_GET['morder']) ? '<a style="width: 150px;" class="btn btn-outline-dark float-end mt-2 border-opacity-25 border" href="#" onkeydown="DrawingByKeyboard()" data-bs-toggle="modal" data-bs-target="#DrawPoset">Drawing Tools</a>' : null ?>
+                         <?php echo isset($_GET['morder']) ? '<a style="width: 150px;" class="btn btn-outline-dark float-end mt-2 border-opacity-25 border" href="#" data-bs-toggle="modal" data-bs-target="#DrawPoset" onkeydown="DrawingByKeyboard()">Drawing Tools</a>' : null ?>
                     </form>
 
                     <!-- To Convert JS variable To PHP Variable -->
@@ -288,6 +285,7 @@
                     XYPoints = []; // Mesh Points with max info
                /* ========= Initialisation of Canvas =========== */
                // grids();
+               console.log(poset);
           </script>
      </footer>
 
@@ -299,3 +297,6 @@
      /* Footer with all footer links */
      include "footer.php";
      ?>
+     <script>
+          reDraw();
+     </script>
