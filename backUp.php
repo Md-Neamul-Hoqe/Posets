@@ -1018,7 +1018,7 @@
     /* ============================================================  */
     /* Characteristic Matrix Formation  */
     /* ============================================================  */
-    function createRelationalTable() {
+    function transitionalCoverMatrix() {
         SELength = selectedElements.length;
         if (SELength) {
             const CoverMatrixLength = (Math.pow(SELength, 2) - SELength) / 2; // Length of the posetMatrix [Upper Triangular]
@@ -1121,7 +1121,7 @@
         // console.log("Please Select Atleast One Elements.");
         //     // return 0;
         // }
-    } /* createRelationalTable() END */
+    } /* transitionalCoverMatrix() END */
 
     // DrawingByKeyboard();
     /* Draw by Keyborad Only */

@@ -80,7 +80,7 @@
                                                        <input type="submit" onclick="resetCanvas()" value="Clear" class="position-absolute fixed-right border-1 border-dark btn btn-light text-danger">
 
                                                        <!-- Submit The Poset -->
-                                                       <input onclick="getMatrix()" name="submitPoset" type="submit" class="text-decoration-none text-light border btn btn-lg btn-dark">
+                                                       <input onclick="getMatrix()" name="submitPoset" type="submit" class="text-decoration-none text-light border btn btn-lg btn-dark" value="Submit">
                                                        <!-- <input onclick="getMatrix()" name="submitPoset" type="submit" class="text-decoration-none text-success border" data-bs-dismiss="modal" aria-label="Close"> -->
                                                   </div>
                                              </div>
@@ -89,7 +89,7 @@
                               </div>
                               <div class="modal-footer">
                                    <div id="ShowErrors" class="error"></div>
-                                   <div id="Coords" class="text-info bg-gradient"></div>
+                                   <!-- <div id="Coords" class="text-info bg-gradient"></div> -->
                               </div>
                          </div>
                     </div>
@@ -236,28 +236,24 @@
           <!-- ############################### OUTPUT Table Details ######################################### -->
      </main>
      <footer class="big-footer">
-          <?php // session_start(); 
-          ?>
           <script>
-               /* Get Characteristic matrix Then Search Poset By This  */
+               morder = document.getElementById("MOrder").value = <?php echo isset($_GET["submitOrder"]) ? $_GET['morder'] : 5; ?>;
+               /* Get transisional cover matrix Then Search Poset By This  */
                function getMatrix() {
-                    /* Call For make the characteristic matrix */
-                    let L = selectedElements.length;
+                    // let L = selectedElements.length;
                     let morder = <?php echo isset($_GET["morder"]) ? $_GET["morder"] : 0; ?>;
-                    if (morder === L) {
-                         var matrix = createRelationalTable();
-                         // var [matrix, selectedElements] = createRelationalTable();
+
+                    if (morder === selectedElements.length) {
+                         var matrix = transitionalCoverMatrix();
 
                          /* Convert JS variable to PHP variable */
-                         document.getElementById("outputMatrix").value = "<?php $_SESSION['SEs'] = "selectedElements" ?>";
-                         console.log(selectedElements);
-                         // console.table(selectedElements[0][2]);
-
                          /* Search with the matrix to search page (ToMatrix.php) */
-                         document.location = './ToMatrix.php?Order=<?php echo isset($_GET["morder"]) ? $_GET["morder"] : 5; ?>&matrix=' + matrix;
+                         document.location = './ToMatrix.php?Order=' + morder + '&matrix=' + matrix + '&SEs=' + JSON.stringify(selectedElements);
+                         // document.location = './ToMatrix.php?Order=<?php // echo isset($_GET["morder"]) ? $_GET["morder"] : 5; 
+                                                                      ?>&matrix=' + matrix;
                          // document.location = './ToMatrix.php?Order=<?php // echo isset($_GET["morder"]) ? $_GET["morder"] : 5; 
                                                                       ?>&matrix=' + matrix + '&SEs=' + selectedElements;
-                         exit();
+                         return;
                     } else {
                          // $().preventDefault();
                          // document.getElementById("ShowErrors").hidden = false;
@@ -265,12 +261,41 @@
                          return false;
                     }
                }
-          </script>
-          <?php
-          /* Footer with all footer links */
-          include "footer.php";
 
-          /* Drawing Tool */
-          include "script.php";
-          ?>
+               document.getElementById("ShowErrors").hidden = true; /* Hidden By Default */
+               /* ========= Initialising The Variables =========== */
+               const x = 50, // The gride start from x
+                    radius = 5,
+                    width = (document.getElementById("poset").width = (morder + 1) * x),
+                    height = (document.getElementById("poset").height = (morder + 1) * x),
+                    poset = document.getElementById("poset").getContext("2d");
+               var xCoord = 0,
+                    yCoord = 0,
+                    type = "Connected",
+                    PxCurrent = 0,
+                    PyCurrent = 0,
+                    PStart = -1,
+                    PEnd = -1,
+                    isHovered = false,
+                    keyPosY = 0,
+                    keyPosX = 0,
+                    Draw = 0,
+                    SELength = 0, // Array To Store The Number of Selected Nodes
+                    selectedElements = [], // Array To Store The Selected Nodes
+                    HEs = [],
+                    ConnectedTo = [],
+                    DistanceFromGrids = [], // Distance From Mesh Poits To Mouse Selection
+                    XYPoints = []; // Mesh Points with max info
+               /* ========= Initialisation of Canvas =========== */
+               // grids();
+          </script>
      </footer>
+
+     <?php
+     /* Drawing Tool */
+     include "script.php";
+     ?>
+     <?php
+     /* Footer with all footer links */
+     include "footer.php";
+     ?>

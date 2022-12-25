@@ -1,4 +1,4 @@
-<?php include "db_conn.php"; ?>
+<?php // include "db_conn.php"; ?>
 <!-- Bootstrap 5.2  -->
 <!doctype html>
 <html lang="en">
@@ -22,7 +22,9 @@
      </header>
      <!-- This is content part of the page  -->
      <main class="content-wrapper py-3">
-        <h2 class="fs-1 fw-bolder text-bg-info">Sorry! We are Not Found</h2>
+        <h2 class="fs-1 fw-bolder text-bg-info">Sorry! We Are Not Found</h2>
+        <p>Please Check Your Database Connection.</p>
+        <p>Then Go To <a href="./index.php"> Home Page </a></p>
      </main>
      <footer class="big-footer">
           <!-- This is footer part of the page  -->

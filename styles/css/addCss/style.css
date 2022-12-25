@@ -14,8 +14,8 @@ Table Of Contents:
 /*     General Styles     */
 /**************************/
 
-
-/* @import url('https://fonts.googleapis.com/css2?family=Galada&display=swap'); */
+/* Fonts Online Link */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@100&family=Exo:wght@100&display=swap');
 
 * {
 	font-family: sans-serif;
@@ -27,10 +27,6 @@ body {
 	max-width: 90%;
 	margin-left: auto;
 	margin-right: auto;
-
-	/* border-width: 0 10px;
-	border-color: red;
-	border-style: double; */
 }
 
 h1,
@@ -72,9 +68,17 @@ a:hover {
 	opacity: 1;
 }
 
+
 canvas#poset {
 	cursor: pointer;
 	transform: rotate(-90deg);
+}
+
+.border-end {
+	display: flex;
+	/* flex-direction: column; */
+	align-items: center;
+	justify-content: center;
 }
 
 #IsOff>span {
@@ -93,32 +97,29 @@ canvas#poset {
 /* Matrix Formating */
 :root {
 	--morder-font-size: 50px;
-	/* --check-primary: red; */
 }
 
 .border-start-end::before {
 	position: absolute;
-	content: '(';
+	font-family: 'Exo 2', 'Exo', serif;
+	content: '[';
 	left: -30px;
-	top: -20%;
+	/* for Exo -40% */
+	top: -50%;
 	font-size: var(--morder-font-size);
-	/* font-weight: 5%; */
 	color: #00000070;
 }
 
 .border-start-end::after {
 	position: absolute;
-	content: ')';
+	font-family: 'Exo 2', 'Exo', serif;
+	content: ']';
 	right: -30px;
-	top: -20%;
+	/* for Exo -40% */
+	top: -50%;
 	font-size: var(--morder-font-size);
-	/* font-weight: 5%; */
 	color: #00000070;
 }
-
-/* select.form-select > option{
-	height: 250px;
-} */
 
 /******************************/
 /*     Back To Top Button     */

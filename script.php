@@ -1,151 +1,35 @@
 <!-- link jquery.js file before use jquery to solve the error "$ is not defined." in console" -->
 <!-- <script src="./styles/js/addJs/jquery-3.6.1.js"></script> -->
 
-<!-- Script.js not work properly with php but php can -->
+<!-- Script.js not work properly in php but php can -->
 
 <script>
     /* Set 5 as Initial Value on page load (index.php) */
-    const morder = document.getElementById("MOrder").value = <?php echo isset($_GET["submitOrder"]) ? $_GET['morder'] : 5; ?>;
-    // const morder = document.getElementById("MOrder").value = <?php // echo isset($_GET["submitOrder"]) || isset($_GET["Order"]) ? $_GET['morder'] : 5; 
-                                                                ?>;
-    // document.getElementById("PosetOutput").hidden = true;
-    // document.getElementById("Search").hidden = true;
-
-    // <?php // echo isset($_GET["submitOrder"]) ?
-        //     'const PosetIndex = document.getElementById("PosetOutput").getContext("2d"),
-        //       PO_width = (document.getElementById("PosetOutput").width = (morder + 1) * 50),
-        //            PO_height = (document.getElementById("PosetOutput").height = (morder + 1) * 50);' : 0 
-        ?>
-    // PosetreDraw(); 
-    function PosetreDraw() {
-        /* Clear The Canvas */
-        PosetIndex.clearRect(0, 0, PO_width, PO_height);
-
-        // document.getElementById("PosetOutput").hidden = false;
-        // document.getElementById("Search").hidden = false;
-        if (
-            selectedElements != undefined &&
-            selectedElements != null &&
-            selectedElements.length
-        ) {
-            // console.table(selectedElements);
-            /* Re-Draw The Selected Elements & Relations */
-            for (let i = 0; i < SELength; i++) {
-                /* Fill The Points */
-                PosetIndex.beginPath(),
-                    PosetIndex.arc(
-                        selectedElements[i][0] * x,
-                        selectedElements[i][1] * x,
-                        radius,
-                        0,
-                        2 * Math.PI
-                    ),
-                    PosetIndex.fill();
-                // console.log("The point ", i, " is restored.");
-
-                /* Re-Draw The Covers of i if Exist */
-                if (
-                    selectedElements[i][2] != undefined &&
-                    selectedElements[i][2] != null &&
-                    selectedElements[i][2].length
-                ) {
-                    // console.log("=================\nThe Covers of", i, "are "),
-                    //   console.table(selectedElements[i][2]);
-                    /* If Any Relation Found To 'i' get Length of the Relation List */
-                    var jL = selectedElements[i][2].length; // Use var to avoid undefined error of jL outside the block
-
-                    for (let j = 0; j < jL; j++) {
-                        PosetIndex.beginPath(),
-                            PosetIndex.moveTo(
-                                selectedElements[i][0] * x,
-                                selectedElements[i][1] * x
-                            );
-                        PosetIndex.lineTo(
-                            selectedElements[selectedElements[i][2][j]][0] * x,
-                            selectedElements[selectedElements[i][2][j]][1] * x
-                        );
-                        // console.log(i, "is covered by ", selectedElements[i][2][j]);
-                        PosetIndex.stroke();
-                        // console.log("The Relation is restored.");
-                    } /* Covers of i Re-Drawn */
-                } else {
-                    // console.log("No Cover is Found For ", i);
-                }
-            } // Re-stored All
-            // console.log(
-            //   "=====================\nRestored Everything.\n====================="
-            // );
-        } else {
-            // console.log(
-            //   "=====================\n=====================\nNothing To Resotred. All Elements With Their Relations/Covers Removed."
-            // );
-        }
-    } // reDraw()
-    if (<?php echo isset($_GET["submitPoset"]) ? 1 : 0 ?>) {
-        PosetreDraw();
-    }
-
     /**
      * 
      * @@@@@@@@@@@@@@@@@ DRAWING TOOL @@@@@@@@@@@@@@@@@@
      * 
      */
 
-    /* =========
-                        Initialising The Variables
-                        =========== */
-    // The Global Variables
-    // const morder = document.getElementById("MOrder").value = <?php // echo isset($_GET[""]) ? $_GET['morder'] : 5; 
-                                                                ?>;
-    const x = 50, // The gride start from x
-        radius = 5,
-        width = (document.getElementById("poset").width = (morder + 1) * x),
-        height = (document.getElementById("poset").height = (morder + 1) * x),
-        poset = document.getElementById("poset").getContext("2d");
-    var xCoord = 0,
-        yCoord = 0,
-        type = "Connected",
-        PxCurrent = 0,
-        PyCurrent = 0,
-        PStart = -1,
-        PEnd = -1,
-        isHovered = false,
-        keyPosY = 0,
-        keyPosX = 0,
-        Draw = 0,
-        SELength = 0, // Array To Store The Number of Selected Nodes
-        selectedElements = [], // Array To Store The Selected Nodes
-        HEs = [],
-        ConnectedTo = [],
-        DistanceFromGrids = [], // Distance From Mesh Poits To Mouse Selection
-        XYPoints = []; // Mesh Points with max info
-    /* =========
-                        Initialisation of Canvas
-                        =========== */
+     
+    // gridsInit();
 
-    /* Set The Name as Numerical value of the grids */
+    // function gridsInit() {
+    /* Set The Name as Coordinate value of the grids */
     for (let i = 0; i < morder; i++) {
         XYPoints[i] = []; // To increase The Dimension by 1
         // for (let j = morder - 1; j >= 0; j--) {
         for (let j = 0; j < morder; j++) {
             XYPoints[i][j] = [];
             /* The Points Located In Frame Like Mesh Gride */
-            XYPoints[i][j][0] = i + 1; // X Coordinate of Mouse Down Click
-            XYPoints[i][j][1] = j + 1; // Y Coordinate of Mouse Down Click
-            XYPoints[i][j][2] = false; // isFilled
+            XYPoints[i][j][0] = i + 1; // X Coordinate of Mouse Down Click [Vertical Coordinate]
+            XYPoints[i][j][1] = j + 1; // Y Coordinate of Mouse Down Click [Horizontal Coordinate]
+            XYPoints[i][j][2] = false; // isFilled The Point
         }
     }
+    // }
 
-    document.getElementById("ShowErrors").hidden = true; /* Hidden By Default */
-
-    /* Initialise the canvas frame with the grids */
-    PosetInitial();
-
-    function PosetInitial() {
-        /* Canvas Border Outside the Gride system */
-        poset.beginPath(); // Important
-        poset.rect(x - 12, x - 12, width - x * 1.5, height - x * 1.5);
-        poset.stroke();
+    function gridsDraw() {
         for (let i = 0; i < morder; i++) {
             for (let j = 0; j < morder; j++) {
                 poset.beginPath(),
@@ -160,6 +44,18 @@
             }
         }
         // Initialising The Coords by small circles with radius = "$radius"
+    }
+    /* Initialise the canvas frame with the grids */
+    PosetInitial();
+
+    function PosetInitial() {
+        /* Canvas Border Outside the Gride system */
+        poset.beginPath(); // Important
+
+        /* Define The Canvas Area */
+        poset.rect(x - 12, x - 12, width - x * 1.5, height - x * 1.5);
+        poset.stroke();
+
 
         /* Side Headings & Titles */
         poset.save(); // Save all previously desinged to change design only for next poset
@@ -175,20 +71,38 @@
             (W_no = i), poset.fillText("W:" + W_no, x * (W_no + 1), -20);
         }
         poset.restore(); // restore The saved design
+        console.log("Frame ReDrawn.");
     } /* Poset Initial */
 
     /* ============================================================ */
     /* reDraw canvas with all drawn elements & their covers */
     /* ============================================================ */
+    // console.table(selectedElements);
+    reDraw();
+
     function reDraw() {
         /* Clear The Canvas */
         poset.clearRect(0, 0, width, height);
-        // console.log(
-        //   "=====================\nThe canvas Cleared.\n====================="
-        // );
+        console.log(
+            "=====================\nThe canvas Cleared.\n====================="
+        );
 
         /* Re-Draw The Canvas Initially */
         PosetInitial();
+
+        <?php
+        if (!isset($_GET["matrix"]) || !isset($_GET["SEs"])) {
+        ?>
+            console.log("Draw The Grids");
+            gridsDraw()
+        <?php
+        } else {
+        ?>
+            console.clear;
+            console.log("Grids Not Drawn.");
+        <?php
+        }
+        ?>
         // console.log("The grid circles Restored by PosetInitial()."),
         //   console.log("ReDrawing...", "\nThe selected Elements to be reDrawn.");
 
@@ -197,8 +111,8 @@
             selectedElements != null &&
             selectedElements.length
         ) {
-            // console.table(selectedElements);
             /* Re-Draw The Selected Elements & Relations */
+            console.table(selectedElements[0][0]);
             for (let i = 0; i < SELength; i++) {
                 /* Fill The Points */
                 poset.beginPath(),
@@ -241,13 +155,13 @@
                     // console.log("No Cover is Found For ", i);
                 }
             } // Re-stored All
-            // console.log(
-            //   "=====================\nRestored Everything.\n====================="
-            // );
+            console.log(
+                "=====================\nRestored Everything.\n====================="
+            );
         } else {
-            // console.log(
-            //   "=====================\n=====================\nNothing To Resotred. All Elements With Their Relations/Covers Removed."
-            // );
+            console.log(
+                "=====================\n=====================\nNothing To Resotred. All Elements With Their Relations/Covers Removed."
+            );
         }
     } // reDraw()
 
@@ -1024,18 +938,26 @@
     });
 
     /* ============================================================  */
-    /* Characteristic Matrix Formation  */
+    /* Transitional Cover Matrix Formation  */
     /* ============================================================  */
-    function createRelationalTable() {
+    function transitionalCoverMatrix() {
         SELength = selectedElements.length;
+        console.log("Create Transitional Cover Matrix with length is: ", SELength);
         if (SELength) {
-            const CoverMatrixLength = (Math.pow(SELength, 2) - SELength) / 2; // Length of the posetMatrix [Upper Triangular]
+            let CoverMatrixLength = (Math.pow(SELength, 2) - SELength) / 2; // Length of the posetMatrix [Upper Triangular]
             // console.log(CoverMatrixLength);
 
             /* Transitional Cover Matrix */
             const posetTCM = new Array(CoverMatrixLength).fill(0); // Initialize as 0
-            const SEsC = selectedElements;
-            let idx = 0;
+            // let SEsC = selectedElements; // Two var useing same location & same value
+            // let SEsC = [];
+            /* to seperate vars location */
+            var SEsC = JSON.parse(JSON.stringify(selectedElements));
+
+            // console.log("selected Elements: "),
+            //     console.table(selectedElements);
+
+            // console.table(SEsC);
 
             /* Transit Cover Matrix */
             for (let j = morder - 3; j >= 0; j--) {
@@ -1046,21 +968,23 @@
                     SEsC[j][2] != null &&
                     SEsC[j][2].length
                 ) {
-                    // console.log(SEs2);
-                    // console.log('j = ', j);
+
+                    // console.log(SEsC),
+                    //     console.log('j = ', j);
                     for (let k = j + 1; k < morder - 1; k++) {
 
                         /* Is j -> k ? */
                         let idxj = SEsC[j][2].findIndex(function(a) {
-                            // console.log("j = ", j, "\n");
+                            // console.log("j = ", j, "\n"),
                             // console.table(a, "?=", j + 1);
-                            return a == k;
+                            return a === k;
                         })
 
-                        /* If j -> k then */
-                        if (idxj != -1) {
-                            // console.log('k = ', k);
-                            // console.log(j, '->', k, " Found in idx = ", idxj);
+                        /* If j related to k then */
+                        if (idxj !== -1) {
+                            // console.log('k = ', k),
+                            //     console.log(j, '->', k, " Found in idx = ", idxj);
+
                             /* If Next element (k) has no relation, Needn't check further */
                             if (
                                 SEsC[k][2] != undefined &&
@@ -1073,26 +997,36 @@
                                     let idxk = SEsC[k][2].findIndex(function(b) {
                                         // console.log("j+1 = ", j + 1, "\n");
                                         // console.table(b, "?=", k + 1);
-                                        return b == l;
+                                        return b === l;
                                     })
 
                                     /* If k -> l then */
-                                    if (idxk != -1) {
-                                        // console.log('l = ', l);
+                                    if (idxk !== -1) {
+                                        // console.log('l = ', l),
                                         // console.log(k, '->', l, " Found in idx = ", idxk);
                                         // console.log(j, " Update -> ", l);
 
                                         /* Append to The Relations */
                                         // PTCM = SEsC[j][2].length;
+                                        console.log("Selected Element Matrix before:");
+                                        console.table(selectedElements);
+
                                         SEsC[j][2][SEsC[j][2].length] = l;
+
+                                        console.log("Copy of Selected Element Matrix:"), console.table(SEsC);
+
+                                        console.log("But Selected Element Matrix remain Unchanged:"),
+                                            console.table(selectedElements);
+                                        // SEsC = 0;
+                                        // return;
                                     }
                                 }
 
                                 // console.log("Is =? ", SEsC[j][2].length, morder - j - 1);
-                                /* If Already All Updated Then 'break' */
                                 // PTCM = SEsC[j][2].length;
+                                /* If Already All Updated Then 'break' */
                                 if (SEsC[j][2].length == morder - j - 1) {
-                                    // console.log(j, " is connected to ");
+                                    // console.log(j, " is connected to "),
                                     // console.table(SEsC[j][2]);
                                     break;
                                 }
@@ -1100,39 +1034,65 @@
                             }
                         }
                     }
-                }
-            }
+                } /* SEsC's j'th element has no cover matrix */
+            } /* END FOR loop :=> Transit Cover Matrix */
 
             /* Find The Cover Matrix */
+            let relations = [];
             for (let i = 0; i < SELength; i++) {
                 if (
-                    selectedElements[i][2] != undefined &&
-                    selectedElements[i][2] != null &&
-                    selectedElements[i][2].length
+                    SEsC[i][2] != undefined &&
+                    SEsC[i][2] != null &&
+                    SEsC[i][2].length
                 ) {
-                    let RL = selectedElements[i][2].length;
+                    let RL = SEsC[i][2].length;
                     for (let k = 0; k < RL; k++) {
                         let cover = SEsC[i][2][k];
-                        idx = SELength * i + cover - ((i + 1) * (i + 2)) / 2; // Find the idx from relational values.
+                        let idx = SELength * i + cover - ((i + 1) * (i + 2)) / 2; // Find the idx from relational values.
                         posetTCM[idx] = 1; // If related assign 1
                     }
 
+                    /* Save The Number of Covers Elements */
+                    relations[i] = selectedElements[i][2].length;
+                    console.log("selected Element for ", i, "th value is: ");
+                    console.table(selectedElements[i][2]);
+                    console.log("So no. of relation: ", relations[i]);
+
+                } else {
+                    relations[i] = 0;
+                    console.log("selected Element for ", i, "th value is: ");
+                    console.table(selectedElements[i][2]);
+                    console.log("So no. of relation: ", relations[i]);
                 }
             }
 
-            /* To draw in index.php page */
-            // console.table(posetTCM);
+
             // return [posetTCM, selectedElements];
+            // document.getElementById("outputMatrix").innerHTML = "<?php // $_SESSION['SEs'] = '" + selectedElements + "';
+                                                                    // $_SESSION['SEs_rels'] = '" + relations + "'; 
+                                                                    ?>";
+            console.log("Relations: ");
+            console.table(relations);
+            console.log("Session OutPut: ");
+            // console.table(document.getElementById("outputMatrix").innerHTML);
+            // console.log("<?php // print_r($_SESSION["SEs"]); 
+                            ?>");
+
+            // console.log("selected Elements: ");
+
+
+            /* To draw in index.php page */
+            console.log("Transitional Cover Matrix Created as:");
+            console.table(posetTCM);
             return posetTCM;
-        }
+        } /* IF END */
         // else {
         // console.log("Please Select Atleast One Elements.");
         //     // return 0;
         // }
     } /* createRelationalTable() END */
 
-    /* Keyborad Features for Drawing Tool */
-    /* Upgrade next for scrolling & Shift Scrolling keyboard feature */
+    /* Keyboard Features for Drawing Tool */
     function DrawingByKeyboard() {
         // console.log("Modal Showing.");
         var PreventFill = true; /* To prevent filled the element on keyboard 'Enter' in "Drawing Tool" button */
@@ -1142,7 +1102,7 @@
         /* Keyboard Event */
         document.onkeyup = function(e) {
             /* for keyborad, e.which is deprecated */
-
+            /* Is Shift key pressed */
             let Shift = e.shiftKey;
             // Alt = e.altKey;
             // Ctrl = e.ctrlKey;
@@ -1182,16 +1142,57 @@
                     // console.log("Down Key Pressed. keyPosY=", keyPosY);
                     break;
                 case "Enter":
+                    /* If Shift+Enter pressed then select to relate the elements */
+                    if (Shift) {
+                        /* If not filled then filled first then select to relate */
+                        if (!XYPoints[keyPosY][keyPosX][2]) {
+                            DrawPoset(XYPoints[keyPosY][keyPosX][0] * x, XYPoints[keyPosY][keyPosX][1] * x);
+                        }
+
+                        /* Select The Current Element From Grids */
+                        function Select(element) {
+                            // console.log("element: ", element, " ?= ", XYPoints[keyPosY][keyPosX]);
+                            return element[0] === XYPoints[keyPosY][keyPosX][0] &&
+                                element[1] === XYPoints[keyPosY][keyPosX][1]
+                        }
+
+                        if (PStart === -1 || PEnd !== -1) {
+                            /* PStart was unset (For First Time) Or PEnd was Set (For Next Time, To Reset PStart) */
+                            let StartTmp = selectedElements.findIndex(Select);
+                            // console.log(StartTmp);
+                            if (StartTmp !== -1) {
+                                console.log("Start = ", StartTmp, " is set.");
+                                PStart = StartTmp;
+                            }
+                        } else {
+
+                            /* PStart is set && PEnd is unset */
+                            let StartTmp = selectedElements.findIndex(Select);
+                            if (StartTmp !== -1 && StartTmp !== PStart) {
+                                console.log("End = ", StartTmp, " is set.");
+                                PEnd = StartTmp;
+
+                                /* Connect The Start & End Elements */
+                                connectLine((PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd);
+                                console.log("The Elements ", (PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd, " is Connected Or Dis-connected.");
+                                PStart = -1;
+                                PEnd = -1;
+                            }
+                        }
+                    }
+
                     /* If 'Tab' press before 'Enter' Or modal show button is clicked by 'Enter' Or Shift key pressed with filled element then Do Nothing on 'Enter' */
                     if (PreventFill || (Tab || (Shift && XYPoints[keyPosY][keyPosX][2]))) {
                         /* Change The value After First 'Enter' Key press */
                         PreventFill = false;
-                        break;
+                        // break;
+                    } else {
+                        /* Else Fill The Selection */
+                        DrawPoset(XYPoints[keyPosY][keyPosX][0] * x, XYPoints[keyPosY][keyPosX][1] * x);
+                        // console.log(XYPoints[keyPosY][keyPosX][0], XYPoints[keyPosY][keyPosX][1], " (XYPoints) Filled is ", XYPoints[keyPosY][keyPosX][2]);
                     }
 
-                    /* Else Fill The Selection */
-                    DrawPoset(XYPoints[keyPosY][keyPosX][0] * x, XYPoints[keyPosY][keyPosX][1] * x);
-                    // console.log(XYPoints[keyPosY][keyPosX][0], XYPoints[keyPosY][keyPosX][1], " (XYPoints) Filled is ", XYPoints[keyPosY][keyPosX][2]);
+
                     break;
                 case "Tab":
                     // console.log("Tab pressed.");
@@ -1202,55 +1203,8 @@
                 case "Escape":
                     Tab = false;
                     break;
-            }
-
-            /**
-             * If Shift pressed Then keep Selected the Last selection
-             * & Hover, If Possible, Connection to next selection 
-             * & If Enter pressed then connect the selection with previous selected element
-             */
-
-            /* PStart,PEnd = -1 in initial */
-            /**
-             * If PStart Not set then set it OR
-             * If PStart is set But PEnd is not set Then set PEnd First
-             * If PStart is set and PEnd also Then PStart reset
-             */
-            if (Shift && e.key === "Enter") {
-                // console.log("Shift Key Pressed & The Element is selected.");
-
-                /* Select The Current Element From Grids */
-                function Select(element) {
-                    // console.log("element: ", element, " ?= ", XYPoints[keyPosY][keyPosX]);
-                    return element[0] === XYPoints[keyPosY][keyPosX][0] &&
-                        element[1] === XYPoints[keyPosY][keyPosX][1]
-                }
-
-                if (PStart === -1 || PEnd !== -1) {
-                    /* PStart was unset (For First Time) Or PEnd was Set (For Next Time, To Reset PStart) */
-                    let StartTmp = selectedElements.findIndex(Select);
-                    // console.log(StartTmp);
-                    if (StartTmp !== -1) {
-                        console.log("Start = ", StartTmp, " is set.");
-                        PStart = StartTmp;
-                    }
-                } else {
-
-                    /* PStart is set && PEnd is unset */
-                    let StartTmp = selectedElements.findIndex(Select);
-                    if (StartTmp !== -1 && StartTmp !== PStart) {
-                        console.log("End = ", StartTmp, " is set.");
-                        PEnd = StartTmp;
-
-                        /* Connect The Start & End Elements */
-                        connectLine((PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd);
-                        console.log("The Elements ", (PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd, " is Connected Or Dis-connected.");
-                        PStart = -1;
-                        PEnd = -1;
-                    }
-                }
-
-
+                default:
+                    console.log("Please update your browser, if this sit not work perfectly.")
             }
 
             /* Keyboard Selection Effect */

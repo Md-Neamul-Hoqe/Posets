@@ -1,7 +1,7 @@
 <?php
 include "header.php";
 ?>
-<title>Unlabeled Posets</title>
+<title>Account Of Posets</title>
 </head>
 
 <body class="bg-white-50 text-dark">
@@ -73,7 +73,7 @@ include "header.php";
 
                                 /* Header for Width */
                                 if ($j == 0) {
-                                    echo "<th class='text-center; fs-5'><span style = 'vertical-align: top; text-nowrap;'>Height<wbr>&Downarrow; </span><span style = 'font-size: xxx-large;'>/</span> <span style = 'vertical-align: bottom'>Width<wbr>&Rightarrow;</span></th>";
+                                    echo "<th class='text-center; fs-5'><span style = 'vertical-align: bottom; text-nowrap;'>Height<wbr>&Downarrow; </span><span style = 'font-size: xxx-large; padding-left: 15px; padding-right: 15px;'>\</span> <span style = 'vertical-align: top'>Width<wbr>&Rightarrow;</span></th>";
                                 } else if ($j == $nelements) {
                                     echo "<th class='text-center; fs-5'>Total</th>";
                                 } else {
@@ -156,7 +156,7 @@ include "header.php";
                             if ($i == 0) {
                                 /* Header for Width */
                                 if ($j == 0) {
-                                    echo "<th class='text-center;fs-5;'><span style = 'vertical-align: top; text-nowrap;'>No. of Direct Terms<wbr>&Downarrow; </span><span style = 'font-size: xxx-large;'>/</span> <span style = 'vertical-align: bottom'>No. of<wbr>&Rightarrow;</span></th>";
+                                    echo "<th class='text-center;fs-5;'><span style = 'vertical-align: bottom; text-nowrap;'>No. of Direct Terms<wbr>&Downarrow; </span><span style = 'font-size: xxx-large; padding-left: 15px; padding-right: 15px;'>\</span> <span style = 'vertical-align: top'>No. of<wbr>&Rightarrow;</span></th>";
                                 } else if ($j == $nelements) {
                                     echo "<th class='text-center; fs-5'>Total</th>";
                                 } else {
