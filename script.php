@@ -1,8 +1,3 @@
-<!-- link jquery.js file before use jquery to solve the error "$ is not defined." in console" -->
-<!-- <script src="./styles/js/addJs/jquery-3.6.1.js"></script> -->
-
-<!-- Script.js not work properly in php but php can -->
-
 <script>
     /* Set 5 as Initial Value on page load (index.php) */
     /**
@@ -161,10 +156,10 @@
             /* Find The Distance From The Mesh Points To The Clicked Point */
             [xCoord, yCoord, K] = findDistFromGrids(xCurrent, yCurrent);
             /* FILL IF NOT CHECKED UNFILLED IF CHECKED */
-            if (typeof(poset) === undefined) {
-                console.log("Error! poset not defined.");
-                return;
-            }
+            // if (typeof(poset) === undefined) {
+            //     console.log("Error! poset not defined.");
+            //     return;
+            // }
             if (DistanceFromGrids[K] <= radius + 1) {
                 // console.log("In DrawPoset() ", xCoord, yCoord);
                 /* Fill The Element As Selected Nodes */
@@ -211,7 +206,7 @@
         /* ============================================================  */
         function transitionalCoverMatrix() {
             SELength = selectedElements.length;
-            console.log("Create Transitional Cover Matrix with length is: ", SELength);
+            // console.log("Create Transitional Cover Matrix with length is: ", SELength);
             if (SELength) {
                 let CoverMatrixLength = (Math.pow(SELength, 2) - SELength) / 2; // Length of the posetMatrix [Upper Triangular]
                 // console.log(CoverMatrixLength);
@@ -276,23 +271,17 @@
                                             // console.log(j, " Update -> ", l);
 
                                             /* Append to The Relations */
-                                            // PTCM = SEsC[j][2].length;
-                                            console.log("Selected Element Matrix before:");
-                                            console.table(selectedElements);
 
                                             SEsC[j][2][SEsC[j][2].length] = l;
 
-                                            console.log("Copy of Selected Element Matrix:"), console.table(SEsC);
+                                            // console.log("Copy of Selected Element Matrix:"), console.table(SEsC);
 
-                                            console.log("But Selected Element Matrix remain Unchanged:"),
-                                                console.table(selectedElements);
-                                            // SEsC = 0;
-                                            // return;
+                                            // console.log("But Selected Element Matrix remain Unchanged:"),
+                                            //     console.table(selectedElements);
                                         }
                                     }
 
                                     // console.log("Is =? ", SEsC[j][2].length, morder - j - 1);
-                                    // PTCM = SEsC[j][2].length;
                                     /* If Already All Updated Then 'break' */
                                     if (SEsC[j][2].length == morder - j - 1) {
                                         // console.log(j, " is connected to "),
@@ -323,15 +312,16 @@
 
                         /* Save The Number of Covers Elements */
                         relations[i] = selectedElements[i][2].length;
-                        console.log("selected Element for ", i, "th value is: ");
-                        console.table(selectedElements[i][2]);
-                        console.log("So no. of relation: ", relations[i]);
+                        // console.log("selected Element for ", i, "th value is: ");
+                        // console.table(selectedElements[i][2]);
+                        // console.log("So no. of relation: ", relations[i]);
 
                     } else {
+                        /* If no relations exist then no. is 0 */
                         relations[i] = 0;
-                        console.log("selected Element for ", i, "th value is: ");
-                        console.table(selectedElements[i][2]);
-                        console.log("So no. of relation: ", relations[i]);
+                        // console.log("selected Element for ", i, "th value is: ");
+                        // console.table(selectedElements[i][2]);
+                        // console.log("So no. of relation: ", relations[i]);
                     }
                 }
 
@@ -340,9 +330,9 @@
                 // document.getElementById("outputMatrix").innerHTML = "<?php // $_SESSION['SEs'] = '" + selectedElements + "';
                                                                         // $_SESSION['SEs_rels'] = '" + relations + "'; 
                                                                         ?>";
-                console.log("Relations: ");
-                console.table(relations);
-                console.log("Session OutPut: ");
+                // console.log("Relations: "),
+                // console.table(relations),
+                // console.log("Session OutPut: ");
                 // console.table(document.getElementById("outputMatrix").innerHTML);
                 // console.log("<?php // print_r($_SESSION["SEs"]); 
                                 ?>");
@@ -350,9 +340,10 @@
                 // console.log("selected Elements: ");
 
 
+                // console.log("Transitional Cover Matrix Created as:"),
+                // console.table(posetTCM);
+
                 /* To draw in index.php page */
-                console.log("Transitional Cover Matrix Created as:");
-                console.table(posetTCM);
                 return posetTCM;
             } /* IF END */
             // else {
@@ -452,7 +443,7 @@
                                 let StartTmp = selectedElements.findIndex(Select);
                                 // console.log(StartTmp);
                                 if (StartTmp !== -1) {
-                                    console.log("Start = ", StartTmp, " is set.");
+                                    // console.log("Start = ", StartTmp, " is set.");
                                     PStart = StartTmp;
                                 }
                             } else {
@@ -460,12 +451,12 @@
                                 /* PStart is set && PEnd is unset */
                                 let StartTmp = selectedElements.findIndex(Select);
                                 if (StartTmp !== -1 && StartTmp !== PStart) {
-                                    console.log("End = ", StartTmp, " is set.");
+                                    // console.log("End = ", StartTmp, " is set.");
                                     PEnd = StartTmp;
 
                                     /* Connect The Start & End Elements */
                                     connectLine((PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd);
-                                    console.log("The Elements ", (PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd, " is Connected Or Dis-connected.");
+                                    // console.log("The Elements ", (PStart < PEnd) ? PStart : PEnd, (PStart > PEnd) ? PStart : PEnd, " is Connected Or Dis-connected.");
                                     PStart = -1;
                                     PEnd = -1;
                                 }
@@ -495,7 +486,7 @@
                         Tab = false;
                         break;
                     default:
-                        console.log("Please update your browser, if this sit not work perfectly.")
+                        console.log("Please update your browser, if this site not work perfectly.")
                 }
 
                 /* Keyboard Selection Effect */
@@ -512,7 +503,7 @@
                         ),
                         poset.stroke();
                 } else {
-                    console.log("Tab is activated.");
+                    // console.log("Tab is activated.");
                     document.getElementById("IsTab").removeAttribute("hidden");
                 }
             }
@@ -539,7 +530,7 @@
             // Initialising The Coords by small circles with radius = "$radius"
         }
         /* Initialise the canvas frame with the grids */
-        
+
         // PosetInitial();
         function PosetInitial() {
             /* Canvas Border Outside the Gride system */
@@ -564,7 +555,7 @@
                 (W_no = i), poset.fillText("W:" + W_no, x * (W_no + 1), -20);
             }
             poset.restore(); // restore The saved design
-            console.log("Frame ReDrawn.");
+            // console.log("Frame ReDrawn.");
         } /* Poset Initial */
 
         /* ============================================================ */
@@ -576,9 +567,9 @@
         function reDraw() {
             /* Clear The Canvas */
             poset.clearRect(0, 0, width, height);
-            console.log(
-                "=====================\nThe canvas Cleared.\n====================="
-            );
+            // console.log(
+            //     "=====================\nThe canvas Cleared.\n====================="
+            // );
 
             /* Re-Draw The Canvas Initially */
             PosetInitial();
@@ -586,13 +577,13 @@
             <?php
             if (!isset($_GET["matrix"]) || !isset($_GET["SEs"])) {
             ?>
-                console.log("Draw The Grids");
+                // console.log("Draw The Grids");
                 gridsDraw()
             <?php
             } else {
             ?>
                 console.clear;
-                console.log("Grids Not Drawn.");
+                // console.log("Grids Not Drawn.");
             <?php
             }
             ?>
@@ -648,14 +639,15 @@
                         // console.log("No Cover is Found For ", i);
                     }
                 } // Re-stored All
-                console.log(
-                    "=====================\nRestored Everything.\n====================="
-                );
-            } else {
-                console.log(
-                    "=====================\n=====================\nNothing To Resotred. All Elements With Their Relations/Covers Removed."
-                );
+                // console.log(
+                //     "=====================\nRestored Everything.\n====================="
+                // );
             }
+            // else {
+            //     console.log(
+            //         "=====================\n=====================\nNothing To Resotred. All Elements With Their Relations/Covers Removed."
+            //     );
+            // }
         } // reDraw()
 
         /* ============================================================ */

@@ -57,10 +57,10 @@
                                     <td class="border fs-5 text-center" style="min-width: 10px; text-align: center;"> <?php echo $row['MatrixOrder'] ?> </td>
                                     <td class="border fs-5 text-center" style="min-width: 10px; text-align: center;"> <?php echo "[" . $row['Matrix'] . "]" ?> </td>
                                     <td class="border fs-5 text-center" style="min-width: 10px; text-align: center;">
-                                        <?php echo "<a class='delete bg-warning bg-gradient' href='edit.php?action=update&id=" . $row['idx'] . "&morder=" . $row['MatrixOrder'] . "'>Edit</a>"; ?>
+                                        <?php echo "<a class='bg-warning px-4 py-1 rounded-1 text-decoration-none border-0 text-dark' href='edit.php?action=update&id=" . $row['idx'] . "&morder=" . $row['MatrixOrder'] . "'>Edit</a>"; ?>
                                     </td>
                                     <td class="border fs-5 text-center">
-                                        <?php echo "<a class='delete' href='delete.php?action=delete&id=" . $row['idx'] . "'>Delete</a>"; ?>
+                                        <?php echo "<a class='bg-danger py-1 px-2 rounded-1 text-decoration-none border-0 text-light' href='delete.php?action=delete&id=" . $row['idx'] . "'>Delete</a>"; ?>
                                     </td>
                                 </tr>
                             <?php } ?>

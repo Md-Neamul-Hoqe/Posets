@@ -18,24 +18,16 @@
                     <form id="PosetMatrix" style="max-width: 600px; margin-left: auto; margin-right: auto;" action="#" method="GET">
                          <label for="MOrder" class="form-label" hidden>Order Of The Matrix</label>
                          <select style="max-width: 100%;" class="form-select form-select-lg" name="morder" id="MOrder" data="<?php echo isset($_GET["morder"]) ? $_GET["morder"] : 5; ?>" autofocus>
-
                               <?php
                               /* Select all unique orders from Database "Posets" on Table 'allposets' */
-
-                              // $FindTable = "SELECT allposets.`idx` FROM allposets";
-                              // if (!mysqli_query($conn, $FindTable)) {
-                              //      die("Sorry! No such data found. Coming Soon...");
-                              // }
-
                               $sqlQuery = "SELECT DISTINCT allposets.`MatrixOrder` FROM allposets";
                               $result = mysqli_query($conn, $sqlQuery) or die("Sorry. Required Data Not Found In Database." . mysqli_errno($conn) . ": " . mysqli_error($conn));
 
                               // $num = $result->num_rows;
                               while ($Orders = mysqli_fetch_assoc($result)) {
-                                   echo "<option value='$Orders[MatrixOrder]' class='fs-5 lh-lg'>Order $Orders[MatrixOrder]</option>";
+                                   echo "<option value='$Orders[MatrixOrder]' class='fs-5'>Order $Orders[MatrixOrder]</option>";
                               }
                               ?>
-
                          </select>
                          <input style="width: 150px;" class="px-0 mt-2 btn btn-outline-dark border-opacity-25 border" type="submit" name="submitOrder" value="Save Order">
 
@@ -285,7 +277,7 @@
                     XYPoints = []; // Mesh Points with max info
                /* ========= Initialisation of Canvas =========== */
                // grids();
-               console.log(poset);
+               // console.log(poset);
           </script>
      </footer>
 
@@ -298,5 +290,6 @@
      include "footer.php";
      ?>
      <script>
+          /* reDraw the poset-canvas after updating all arrays */
           reDraw();
      </script>
