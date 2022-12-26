@@ -374,7 +374,7 @@ include "script.php";
 
             <div class='border border-1 row'>
                 <!-- Two Equal Column [Matrix & Hasse Diagram] -->
-                <div class='border-end col-6'>
+                <div class='border-end col-6 d-flex justify-content-center align-items-center'>
                     <!-- Poset Matrix -->
                     <div class='row m-4'>
                         <!-- Matrix Notation [ -->
@@ -416,7 +416,7 @@ include "script.php";
                     <?php if (isset($_GET["matrix"]) && isset($_GET["SEs"])) {
                     ?>
                         <!-- Draw The Poset Which is just Inputed to search -->
-                        <div class="text-center" data-bs-content="Draw The Hasse Diagram of The Poset Matrix.">
+                        <div class="text-center d-flex justify-content-center" data-bs-content="Draw The Hasse Diagram of The Poset Matrix.">
                             <canvas id="poset-Draw" width="200" height="200" class="border border-4 border-dark shadow-lg p-0">
                                 Sorry! Canvas Is Not Supported In Your Browser. Please Search manually.
                             </canvas>

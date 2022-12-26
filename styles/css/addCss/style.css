@@ -78,16 +78,6 @@ canvas[id|=poset] {
 	transform: rotate(-90deg);
 }
 
-/* [id|=matrix]{
-	font-size: 1.125rem !important;
-} */
-.border-end {
-	display: flex;
-	/* flex-direction: column; */
-	align-items: center;
-	justify-content: center;
-}
-
 #IsOff>span {
 	margin-top: 0;
 	padding-top: 0;
