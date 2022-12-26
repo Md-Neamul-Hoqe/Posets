@@ -42,7 +42,7 @@ include "header.php";
 
         <!-- ############################### OUTPUT Table Details ######################################### -->
     </main>
-    <footer class="big-footer"><wbr>
+    <footer class="big-footer">
         <!-- This is footer part of the page  -->
 
         <?php
